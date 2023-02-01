@@ -1,6 +1,7 @@
 ---
-title: "Project title"
+title: "Horror Movie Visualizations"
 subtitle: "Proposal"
+name: "Chris Liang, Kevin Ordet, Chris Tsai, Jason Zhang"
 format: html
 editor: visual
 ---
