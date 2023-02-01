@@ -1,23 +1,34 @@
 ---
 title: "Horror Movie Visualizations"
 subtitle: "Proposal"
-name: "Chris Liang, Kevin Ordet, Chris Tsai, Jason Zhang"
+name: "Viz-Villains: Chris Liang, Kevin Ordet, Chris Tsai, Jason Zhang"
 format: html
 editor: visual
 ---
 
-```{r}
-#| label: load-pkgs
-#| message: false
 
+```{r load-packages, message = FALSE}
 library(tidyverse)
+library(broom)
+library(patchwork)
+library(dplyr)
+library(knitr)
 ```
+
+```{r read-data, message = F}
+horror_movies <- read.csv("data/horror_movies.csv")
+```
+
 
 # Dataset
 
 A brief description of your dataset including its provenance, dimensions, etc. as well as the reason why you chose this dataset.
 
 Make sure to load the data and use inline code for some of this information.
+
+The data include `r nrow(horror_movies)` entries, with `r ncol(horror_movies)` variables (e.g. the movie name, release date, runtime, etc.). Each entry represents a horror movie released starting from the 1950s. The data were extracted from [The Movie Database](https://www.themoviedb.org) via tmdb API using R `httr` .
+
+We chose the data because it had a healthy amount of both numerical and categorical variables that we thought could produce a variety of visualizations. Additionally, none of us are horror movie fans, so we thought this exploration into a genre we are unfamiliar with would be an enlightening experience.
 
 # Questions
 
