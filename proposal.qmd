@@ -18,7 +18,7 @@ library(knitr)
 horror_movies <- read.csv("data/horror_movies.csv")
 ```
 
-# Dataset
+## Dataset
 
 The Horror Movies data include `r nrow(horror_movies)` entries, with `r ncol(horror_movies)` variables (e.g. the movie name, release date, runtime, etc.). Each entry represents a horror movie released starting from the 1950s. The data were extracted from [The Movie Database](https://www.themoviedb.org) via tmdb API using R `httr` .
 
@@ -26,21 +26,21 @@ We chose the data because it had a healthy amount of both numerical and categori
 
 Some relevant variables are `id`: the unique identifier for the movie, `title`: the name of the movie, `original_language`: the language of the movie, `release_date`: when the movie was released, `budget`: the budget of the movie in dollars, `revenue`: how much money the movie made in dollars, and `genre_names`: the genres and sub-genres of the horror movie. The last variable of interest is `popularity`, which is based on TMDB's own model for popularity metric. For movies, TMDB says their popularity model is based on "number of votes for the day, number of views for the day, number of users who marked it as a"favourite" for the day, number of users who added it to their "watchlist" for the day, release date, number of total votes, previous days score". So, the popularity rating in this data is the popularity as of the date the API was called, which is November 1, 2022, according to this tidytuesday [GitHub repository](https://github.com/rfordatascience/tidytuesday/tree/master/data/2022/2022-11-01).
 
-# Questions
+## Questions
 
-### Question 1:
+#### Question 1:
 
 How is the popularity of a released horror movie impacted by the environment that it was released in (i.e. how do time and context affect movie popularity)?
 
-### Question 2:
+#### Question 2:
 
 Are there certain sub-genres of horror (e.g. thriller, comedy, drama) that perform better than others?
 
-# Analysis plan
+## Analysis plan
 
 The unique identifier for each movie is `id` -- and we would clean the data to remove NAs for `id`, `release_data`, `budget`, `revenue`, and `popularity`, because those are the characteristics that we intend to look at for analysis. However, trying to drop the NAs for these variables showed that all the data include these variables, and removing the NAs for these variables does not remove any observations.
 
-### Analysis plan question 1:
+#### Analysis plan question 1:
 
 We know the first question is vague and it is purposely so, but we hope to make it more clear what we're trying to answer via our analysis and data visualizations. When we say "environment", we mean the context of time of release, as the year of release is linked to different economic environments, different budgets for entertainment, different social norms and audience reception to horror, etc.
 
@@ -54,7 +54,7 @@ Our last rough idea of a visualization we might want to create is one that looks
 
 The above plans for visualizations can be tweaked--there are many ways to represent time series data, where the most obvious ones are with scatterplots over time or line graphs over time. However, as we work through our visualizations, we will be able to tweak or add other visualizations to represent the popularity and time trends. Overall, we believe that the rough visualizations above will properly display answers to the the first question.
 
-### Analysis plan question 2
+#### Analysis plan question 2
 
 For the second question, we aim to look at the variable `genre_names`, which includes the genres that the movie falls into. Horror, for obvious reasons, is included in the value for the observations of this variable. On top of that, many observations have extra tagged genres, such as drama, thriller, etc. That variable is currently of type character (a string in R), so we can use a delimiter to separate it into different variables for each sub genre. We intend to make indicator variables: beyond horror, it will be Thriller: 0 or 1, 0 for thriller is not included in the extra genre taglines, 1 for if it is. We'll take the top several genres to make indicator variables and discard the rest that have very few tagged -- let's say "Adventure" is too rare a subgenre taged in genre_names, we'll just make indicator variables for the top X occurring subgenres. How we'll find the top X occurring subgenres will be through using the stringr package to identify if the string value for `genre_names` contains a certain sub-genre, then counting how many occurrences there are for each subgenre, and identifying the top X results.
 
