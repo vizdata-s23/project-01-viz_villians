@@ -38,7 +38,7 @@ Are there certain sub-genres of horror (e.g. thriller, comedy, drama) that perfo
 
 ## Analysis plan
 
-The unique identifier for each movie is `id` -- and we would clean the data to remove NAs for `id`, `release_data`, `budget`, `revenue`, and `popularity`, because those are the characteristics that we intend to look at for analysis. However, trying to drop the NAs for these variables showed that all the data include these variables, and removing the NAs for these variables does not remove any observations.
+The unique identifier for each movie is `id` -- and we would clean the data to remove NAs for `id`, `release_data`, `budget`, `revenue`, and `popularity`, because those are the characteristics that we intend to look at for analysis. However, every observation includes all of the aforementioned variables so no observations will be dropped in doing so.
 
 #### Analysis plan question 1:
 
