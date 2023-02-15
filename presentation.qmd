@@ -1,7 +1,7 @@
 ---
 title: "Project title"
 subtitle: "STA/ISS 313 - Spring 2023 - Project 1"
-author: "Viz Villians- Christopher Tsai, Chris Liang, Jason Zhang, Kevin Ordet"
+author: "Viz Villains- Christopher Tsai, Chris Liang, Jason Zhang, Kevin Ordet"
 title-slide-attributes:
   data-background-image: images/watercolour_sys02_img34_teacup-ocean.jpg
   data-background-size: stretch
@@ -12,9 +12,7 @@ execute:
   echo: false
 ---
 
-```{r}
-#| label: load-packages
-#| include: false
+```{r load-packages, message = F, include = F, warning = F}
 
 # Add any additional packages you need to this chunk
 # Remove any packages from this list that you're not using
@@ -23,12 +21,10 @@ library(broom)
 library(patchwork)
 library(dplyr)
 library(knitr)
+library(lubridate)
 ```
 
-```{r}
-#| label: setup
-#| include: false
-
+```{r setup, include = F}
 # For better figure resolution
 knitr::opts_chunk$set(
   fig.retina = 3, 
@@ -39,10 +35,7 @@ knitr::opts_chunk$set(
   )
 ```
 
-```{r}
-#| label: load-data
-#| include: false
-
+```{r load-data, include = F, warning = F}
 horror_movies <- read.csv("data/horror_movies.csv")
 
 ```
@@ -104,13 +97,30 @@ or text in two columns $^*$
 
 ## Code
 
-```{r}
-#| label: boring-regression
+```{r mutate, warning = F}
+horror_movies <- horror_movies |>
+  mutate(release_date2 = release_date) |>
+  separate(release_date2, 
+           into = c("release_year", "throwaway"), sep = "-") |>
+  mutate(release_date = as.Date(release_date)) |>
+  mutate(release_year = as.numeric(release_year)) |>
+  select(!throwaway)
+```
 
-# a boring regression
-model <- lm(dist ~ speed, data = cars)
-tidy(model)
-glance(model)
+
+```{r working-on-it}
+horror_movies |>
+  group_by(release_year) |>
+  filter(release_year != 2022) |>
+  summarise(meanpop = mean(popularity)) |>
+  ggplot(aes(x = release_year, y = meanpop)) +
+  geom_line() #+ 
+  # coord_cartesian(ylim = c(0, 100)) + 
+  # geom_smooth(se = FALSE, color = "red")
+
+# horror_movies |>
+#   group_by(release_year) |>
+#   summarise(meanpop = mean(popularity))
 ```
 
 ## Plots
