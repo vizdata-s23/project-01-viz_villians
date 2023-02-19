@@ -97,6 +97,16 @@ or text in two columns $^*$
 
 ## Code
 
+```{r}
+horror_movies <- horror_movies |>
+  mutate(profit = revenue - budget)
+
+
+horror_movies |>
+  summarise(mine = min(release_year))
+  
+```
+
 ```{r mutate, warning = F}
 horror_movies <- horror_movies |>
   mutate(release_date2 = release_date) |>
@@ -109,12 +119,12 @@ horror_movies <- horror_movies |>
 
 
 ```{r working-on-it}
-horror_movies |>
-  group_by(release_year) |>
-  filter(release_year != 2022) |>
-  summarise(meanpop = mean(popularity)) |>
-  ggplot(aes(x = release_year, y = meanpop)) +
-  geom_line() #+ 
+# horror_movies |>
+#   group_by(release_year) |>
+#   filter(release_year != 2022) |>
+#   summarise(meanpop = mean(popularity)) |>
+#   ggplot(aes(x = release_year, y = meanpop)) +
+#   geom_line() #+ 
   # coord_cartesian(ylim = c(0, 100)) + 
   # geom_smooth(se = FALSE, color = "red")
 
@@ -123,40 +133,11 @@ horror_movies |>
 #   summarise(meanpop = mean(popularity))
 ```
 
+
+
+
 ## Plots
 
-```{r}
-#| label: recode-species
-#| echo: false
-
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-
-penguins_modified <- penguins %>%
-  mutate(species = fct_other(species, keep = "Adelie"))
-```
-
-```{r}
-#| label: plot-penguins
-#| echo: false
-#| warning: false
-#| fig-alt: |
-#|   Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all 
-#|   the others combined together. There is a relatively strong, positive 
-#|   relationship between the two variables. The Adelie penguins are clustered 
-#|   together but they don't exhibit a different trend than the rest of the 
-#|   penguins.
-
-# Uses modified penguins dataset from previous chunk
-# Play around with height and width until you're happy with the look
-
-ggplot(
-  penguins_modified, 
-  aes(x = flipper_length_mm, y = body_mass_g, color = species)
-  ) +
-  geom_point() + 
-  theme_minimal()
-```
 
 ## Plot and text
 
@@ -167,21 +148,7 @@ ggplot(
 :::
 
 ::: {.column width="50%"}
-```{r}
-#| warning: false
-#| out-width: "100%"
-#| fig-width: 4
-#| echo: false
 
-# See how I changed out-width and fig-width from defaults
-# to make the figure bigger
-
-ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot() +
-  theme_minimal()
-```
-:::
-:::
 
 # A new section...
 
@@ -189,15 +156,10 @@ ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
 
 If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
 
-```{r}
-#| label: penguins-table
-
-gt(head(penguins))
-```
 
 ## Images
 
-![Image credit: Danielle Navarro, Percolate.](images/watercolour_sys02_img34_teacup-ocean.png)
+
 
 ## Math Expressions {.smaller}
 
