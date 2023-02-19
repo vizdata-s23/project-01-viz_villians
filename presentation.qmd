@@ -109,6 +109,7 @@ horror_movies <- horror_movies |>
 ```
 
 
+Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
 ```{r adding-inflation}
 inflationdata <- read.csv("data/Dollar_inflation.csv")
 
