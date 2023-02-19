@@ -37,7 +37,6 @@ knitr::opts_chunk$set(
 
 ```{r load-data, include = F, warning = F}
 horror_movies <- read.csv("data/horror_movies.csv")
-
 ```
 
 #### Analysis plan question 1:
@@ -97,40 +96,49 @@ or text in two columns $^*$
 
 ## Code
 
-```{r}
+
+```{r mutate-dataset, warning = F}
 horror_movies <- horror_movies |>
-  mutate(profit = revenue - budget)
-
-
-horror_movies |>
-  summarise(mine = min(release_year))
-  
-```
-
-```{r mutate, warning = F}
-horror_movies <- horror_movies |>
-  mutate(release_date2 = release_date) |>
+  mutate(profit = revenue - budget,
+         release_date2 = release_date) |>
   separate(release_date2, 
            into = c("release_year", "throwaway"), sep = "-") |>
-  mutate(release_date = as.Date(release_date)) |>
-  mutate(release_year = as.numeric(release_year)) |>
+  mutate(release_date = as.Date(release_date),
+         release_year = as.numeric(release_year)) |>
   select(!throwaway)
 ```
 
 
-```{r working-on-it}
-# horror_movies |>
-#   group_by(release_year) |>
-#   filter(release_year != 2022) |>
-#   summarise(meanpop = mean(popularity)) |>
-#   ggplot(aes(x = release_year, y = meanpop)) +
-#   geom_line() #+ 
-  # coord_cartesian(ylim = c(0, 100)) + 
-  # geom_smooth(se = FALSE, color = "red")
+```{r adding-inflation}
+inflationdata <- read.csv("data/Dollar_inflation.csv")
 
-# horror_movies |>
-#   group_by(release_year) |>
-#   summarise(meanpop = mean(popularity))
+inflationdata <- inflationdata |>
+  filter(year != 2023) |>
+  rename("release_year" = "year",
+         "dollar_adjusted_by1950" = "amount")
+
+horror_new <- left_join(horror_movies, inflationdata, by = "release_year")
+```
+
+
+```{r adjusted-profit}
+horror_new <- horror_new |>
+  mutate(adj_profit = ifelse(profit > 0, profit/dollar_adjusted_by1950, 0))
+```
+
+```{r}
+bang <- horror_new |>
+  filter(release_year < 2000)
+```
+
+
+```{r working-on-it}
+# horror_new |>
+#   filter(adj_profit > 0) |>
+#   ggplot(aes(x = release_year, y = adj_profit)) +
+#   geom_point() +
+#   coord_cartesian(ylim = c(0, 50000)) +
+#   geom_smooth(se = FALSE, color = "red")
 ```
 
 
