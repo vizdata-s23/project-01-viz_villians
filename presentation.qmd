@@ -128,7 +128,7 @@ horror_new <- horror_new |>
          adj_budget2020 = budget/dollar_adjusted_by1950*12.14,
          prop_profit = adj_profit2020/adj_budget2020) |>
   filter(adj_budget2020 >= 2000000,
-         release_year >= 2000)
+         release_year >= 1980)
 ```
 
 ```{r}
@@ -155,12 +155,27 @@ horror_new |>
 
 ```{r}
 horror_new |>
-  group_by(release_year) |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  group_by(release_year, en_language) |>
   summarise(count = n()) |>
-  ggplot(aes(x = release_year, y = count)) +
+  ggplot(aes(x = release_year, y = count, color = en_language)) +
   geom_point() +
   geom_line() +
   geom_smooth(se = FALSE)
+```
+
+```{r}
+horror_new |>
+  group_by(release_year) |>
+  summarise(total_budget = sum(adj_budget2020),
+            total_profit = sum(adj_profit2020)) |>
+  ggplot(aes(x = release_year, y = total_budget)) +
+  geom_point(col = "blue") +
+  geom_line(col = "blue") +
+  geom_smooth(se = FALSE, col = "blue") +
+  geom_point(aes(y = total_profit), col = "red") +
+  geom_line(aes(y = total_profit), col = "red") +
+  geom_smooth(aes(y = total_profit), se = FALSE, col = "red")
 ```
 
 ```{r}
