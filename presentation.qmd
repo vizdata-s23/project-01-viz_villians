@@ -96,7 +96,6 @@ or text in two columns $^*$
 
 ## Code
 
-
 ```{r mutate-dataset, warning = F}
 horror_movies <- horror_movies |>
   mutate(profit = revenue - budget,
@@ -108,8 +107,8 @@ horror_movies <- horror_movies |>
   select(!throwaway)
 ```
 
-
 Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
+
 ```{r adding-inflation}
 inflationdata <- read.csv("data/Dollar_inflation.csv")
 
@@ -121,10 +120,15 @@ inflationdata <- inflationdata |>
 horror_new <- left_join(horror_movies, inflationdata, by = "release_year")
 ```
 
-
 ```{r adjusted-profit}
 horror_new <- horror_new |>
-  mutate(adj_profit = ifelse(profit > 0, profit/dollar_adjusted_by1950, 0))
+  mutate(adj_profit2020 = profit/dollar_adjusted_by1950*12.14,
+         adj_profit1950 = profit/dollar_adjusted_by1950,
+         adj_budget1950 = budget/dollar_adjusted_by1950,
+         adj_budget2020 = budget/dollar_adjusted_by1950*12.14,
+         prop_profit = adj_profit2020/adj_budget2020) |>
+  filter(adj_budget >= 2000000,
+         release_year >= 2000)
 ```
 
 ```{r}
@@ -132,32 +136,46 @@ bang <- horror_new |>
   filter(release_year < 2000)
 ```
 
+```{r}
+ggplot(horror_new, aes(x = adj_budget2020)) +
+  geom_histogram(boundary = 0)
 
-```{r working-on-it}
-# horror_new |>
-#   filter(adj_profit > 0) |>
-#   ggplot(aes(x = release_year, y = adj_profit)) +
-#   geom_point() +
-#   coord_cartesian(ylim = c(0, 50000)) +
-#   geom_smooth(se = FALSE, color = "red")
+ggplot(horror_new, aes(x = adj_profit2020)) +
+  geom_histogram()
 ```
 
+```{r working-on-it}
+horror_new |>
+  #filter(adj_profit > 0) |>  
+  ggplot(aes(x = release_year, y = adj_profit)) +
+  geom_point() +
+  geom_smooth(se = FALSE, color = "red")
+  #coord_cartesian(ylim = c(0, 50000))
+```
 
+```{r}
+horror_new |>
+  group_by(release_year) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = release_year, y = count)) +
+  geom_point() +
+  geom_line() +
+  geom_smooth(se = FALSE)
+```
 
+```{r}
+ggplot(horror_new, aes(x = release_year, y = prop_profit)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
 
 ## Plots
 
-
 ## Plot and text
 
-::: columns
-::: {.column width="50%"}
--   Some text
--   goes here
-:::
+::: columns ::: {.column width="50%"} - Some text - goes here :::
 
 ::: {.column width="50%"}
-
 
 # A new section...
 
@@ -165,10 +183,7 @@ bang <- horror_new |>
 
 If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
 
-
 ## Images
-
-
 
 ## Math Expressions {.smaller}
 
