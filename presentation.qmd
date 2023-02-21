@@ -169,6 +169,20 @@ ggplot(horror_new, aes(x = release_year, y = prop_profit)) +
   geom_smooth(se = FALSE)
 ```
 
+```{r}
+horror_new |>
+  mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
+                          adj_budget2020 > 1000000 ~ "big",
+                          adj_budget2020 > 100000 ~ "medium",
+                          TRUE ~ "small")) |>
+  filter(release_year >= 2000, size!= "small") |>
+  group_by(release_year, size) |>
+  summarise(count = n(), total = sum(adj_budget2020)) |>
+  ggplot(aes(x=release_year, y = count, color=size, fill=size)) +
+  geom_col()
+  
+```
+
 ## Plots
 
 ## Plot and text
