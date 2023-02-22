@@ -7,6 +7,6 @@ editor: visual
 This project was developed by **Viz-Villains** For [STA/ISS 313: Advanced Data Visualization](https://vizdata.org/) at Duke University. The team is comprised of the following team members.
 
 -   Christina Liang: Junior at Duke University studying Statistical Science and French
--   Kevin Ordet: Senior at Duke University studying Statistical Science with a minor in Computer Science
+-   Kevin Ordet: Senior at Duke University studying Data Science
 -   Chris Tsai: Junior at Duke University studying Statistical Science with a minor in Chemistry
 -   Jason Zhang: Senior at Duke University studying Statistical Science (Data Science concentration) with minors in Finance and Chinese
