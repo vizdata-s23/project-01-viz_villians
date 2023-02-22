@@ -1,5 +1,5 @@
 ---
-title: "Horror Movie Visualizations"
+title: "Project title"
 subtitle: "STA/ISS 313 - Spring 2023 - Project 1"
 author: "Viz Villains- Christopher Tsai, Chris Liang, Jason Zhang, Kevin Ordet"
 title-slide-attributes:
@@ -168,23 +168,53 @@ description3 <-
   "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |> 
   str_wrap(width=40)
 
+plot_circle_purple <- horror_new |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  group_by(release_year, en_language) |>
+  summarise(count = n()) |>
+  filter(release_year == 2009 | release_year == 2010,
+         en_language == "en")
+
+plot_circle_blue <- horror_new |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  group_by(release_year, en_language) |>
+  summarise(count = n()) |>
+  filter(release_year == 1999 | release_year == 2000,
+         en_language == "en")
+
+plot_circle_black <- horror_new |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  group_by(release_year, en_language) |>
+  summarise(count = n()) |>
+  filter(release_year == 2019 | release_year == 2020,
+         en_language == "en")
+
 horror_new |>
   mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
   group_by(release_year, en_language) |>
   summarise(count = n()) |>
   ggplot(aes(x = release_year, y = count, color = en_language)) +
-  geom_point() +
-  geom_line() +
-  geom_smooth(se = FALSE) +
-  geom_segment(x = 2010, xend = 2010, y = -5, yend = 45, col = "black", linewidth = 1.5, alpha = 0.8) +
-  geom_segment(x = 1999, xend = 1999, y = -5, yend = 22, col = "black", linewidth = 1.5) +
+  geom_point(size = 3) +
+  geom_point(data = plot_circle_purple,
+             pch=21,
+             size=6,
+             colour="purple") +
+  geom_point(data = plot_circle_blue,
+             pch=21,
+             size=6,
+             colour="deepskyblue4") +
+   geom_point(data = plot_circle_black,
+             pch=21,
+             size=6,
+             colour="black") +
   annotate(
     "label",
-    x = 2015,
-    y = 55,
+    x = 2000,
+    y = 59,
     label = description1,
     alpha = 0.6,
-    size = 5
+    size = 5,
+    color = "purple"
   ) +
 annotate(
     "label",
@@ -192,9 +222,10 @@ annotate(
     y = 35,
     label = description2,
     alpha = 0.6,
-    size = 5
+    size = 5,
+    color = "deepskyblue4"
   ) +
-geom_ellipse(aes(x0 = 2019.8, y0 = 27, a = 8.4, b = 2, angle =  -1.4 * pi / 3), color = "black") +
+geom_ellipse(aes(x0 = 2019.8, y0 = 27.7, a = 9.3, b = 2, angle =  -1.4 * pi / 3), color = "black") +
   annotate(
     "label",
     x = 2014,
@@ -213,7 +244,7 @@ theme(
   legend.key.height = unit(3, 'cm'), #change legend key height
   legend.key.width = unit(3, 'cm'),
   plot.title = element_text(size=18),
-  plot.subtitle = element_text(size=16),
+  plot.subtitle = element_text(size=18),
   axis.title=element_text(size=14)) +
 scale_color_discrete(labels=c('English', 'Other'))
 
