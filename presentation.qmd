@@ -161,7 +161,7 @@ description1 <-
   str_wrap(width=40)
 
 description2 <-
-  "7 of the 16 Horror Movies with the biggest profit were released in 1999 or 2000 marking the catalyzing a decade long growth in the popularity of Horror Movies" |> 
+  "7 of the 16 Horror Movies with the biggest profit were released in 1999 or 2000 marking the catalyzation of a decade long growth in the popularity of Horror Movies" |> 
   str_wrap(width=40)
 
 description3 <-
@@ -202,7 +202,70 @@ geom_ellipse(aes(x0 = 2019.8, y0 = 27, a = 8.4, b = 2, angle =  -1.4 * pi / 3), 
     label = description3,
     alpha = 0.8,
     size = 4
-  )
+  ) +
+  labs(title = "How the number of horror movies launched for theatrical release changed over time",
+       subtitle = "From 1980-2020",
+       x = "Year",
+       y = "Number of Horror Movies",
+       color = "Language") +
+theme(
+  legend.key.size = unit(3, 'cm'), #change legend key size
+  legend.key.height = unit(3, 'cm'), #change legend key height
+  legend.key.width = unit(3, 'cm'),
+  plot.title = element_text(size=18),
+  plot.subtitle = element_text(size=16),
+  axis.title=element_text(size=14)) +
+scale_color_discrete(labels=c('English', 'Other'))
+
+```
+
+```{r}
+
+description1 <-
+  "The horrific events of 9/11 got people on edge. The political uncertainty of the time increased the popularity of horror movies that allowed people to have an outlet for their anxiety." |> 
+  str_wrap(width=40)
+
+description2 <-
+  "The stock market crashes in 2009. Horror films reach their peak popularity due to uncertainty and anxiety about the economic state of the US." |> 
+  str_wrap(width=40)
+
+horror_new |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  group_by(release_year, en_language) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = release_year, y = count, color = en_language)) +
+  geom_point() +
+  geom_line() +
+  geom_smooth(se = FALSE) +
+  geom_segment(x = 2001, xend = 2001, y = -5, yend = 27, col = "black", linewidth = 1.5) +
+  geom_segment(x = 2009, xend = 2009, y = -5, yend = 45, col = "black", linewidth = 1.5) +
+  annotate(
+    "label",
+    x = 1995,
+    y = 35,
+    label = description1,
+    alpha = 0.6,
+    size = 5
+  ) +
+  annotate(
+    "label",
+    x = 2015.5,
+    y = 51,
+    label = description2,
+    alpha = 0.6,
+    size = 5
+  ) +
+  labs(title = "Uncertainty and Anxiety- How Horror Flicks Popularity Correlates with a Need for an Outlet of Fears",
+       x = "Year",
+       y = "Total Number of Movies for Theatrical Release",
+       color = "Language") +
+theme(
+  legend.key.size = unit(3, 'cm'), #change legend key size
+  legend.key.height = unit(3, 'cm'), #change legend key height
+  legend.key.width = unit(3, 'cm'),
+  plot.title = element_text(size=18),
+  axis.title=element_text(size=14)) +
+scale_color_discrete(labels=c('English', 'Other'))
 ```
 
 ```{r}
@@ -211,12 +274,26 @@ horror_new |>
   summarise(total_budget = sum(adj_budget2020),
             total_profit = sum(adj_profit2020)) |>
   ggplot(aes(x = release_year, y = total_budget)) +
-  geom_point(col = "blue") +
-  geom_line(col = "blue") +
-  geom_smooth(se = FALSE, col = "blue") +
-  geom_point(aes(y = total_profit), col = "red") +
-  geom_line(aes(y = total_profit), col = "red") +
-  geom_smooth(aes(y = total_profit), se = FALSE, col = "red")
+  geom_point(aes(col = "Total Budget")) +
+  geom_line(aes(col = "Total Budget")) +
+  geom_smooth(se = FALSE, aes(col = "Total Budget")) +
+  geom_point(aes(y = total_profit, col = "Total Profit")) +
+  geom_line(aes(y = total_profit, col = "Total Profit")) +
+  geom_smooth(aes(y = total_profit, col = "Total Profit"), se = FALSE) +
+  scale_color_manual(name='',
+                     breaks=c('Total Profit', 'Total Budget'),
+                     values=c('Total Profit'='red', 'Total Budget'='blue')) +
+  theme(legend.key.size = unit(3, 'cm'), #change legend key size
+        legend.key.height = unit(3, 'cm'), #change legend key height
+        legend.key.width = unit(3, 'cm'),
+        plot.title = element_text(size=18),
+        plot.subtitle = element_text(size=14),
+        axis.title=element_text(size=14)) +
+  labs(title = "Starting in 2007, Movie Directors realized they didn't need big budgets to garner an audience for their movies",
+       y = "$ adj. for inflation",
+       x = "Year",
+       subtitle = "While total budget decreased, total profit continued to increase"
+       )
 ```
 
 ```{r}
