@@ -1,14 +1,14 @@
 ---
-title: "Project title"
+title: "Horror Movie Visualizations"
 subtitle: "STA/ISS 313 - Project 1"
-author: "Team Name"
+author: "Viz-Villains"
 format: html
 editor: visual
 ---
 
 ## Abstract
 
-(1 paragraph): Project abstract.
+This project takes data extracted from [The Movie Database](https://www.themoviedb.org) via tmdb API using R `httr`. The purpose of this project is to analyze a) how trends in factors surrounding horror as a genre (e.g. popularity, budgets, etc) have changed over time and b) how different subgenres are associated with popularity of horror films as a whole. This project aims to create compelling visualizations to analyze the two research questions above and deliver findings that can be useful in determining next steps for analysis.
 
 ------------------------------------------------------------------------
 
