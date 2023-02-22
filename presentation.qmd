@@ -246,11 +246,11 @@ scale_color_discrete(labels=c('English', 'Other'))
 ```{r}
 
 description1 <-
-  "The horrific events of 9/11 got people on edge. The political uncertainty of the time increased the popularity of horror movies that allowed people to have an outlet for their anxiety." |> 
+  "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |> 
   str_wrap(width=40)
 
 description2 <-
-  "The stock market crashes in 2009. Horror films reach their peak popularity due to uncertainty and anxiety about the economic state of the US." |> 
+  "The stock market crashes in 2009. Questions about American economic security arise." |> 
   str_wrap(width=40)
 
 horror_new |>
