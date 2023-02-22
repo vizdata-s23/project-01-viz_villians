@@ -88,7 +88,6 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
-
 ```{r mutating-levels}
 horror_new |>
   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
@@ -249,8 +248,6 @@ scale_color_discrete(labels=c('English', 'Other')) +
 scale_color_manual(values = c("navy", "steelblue1"))
 ```
 
-
-
 ## Q1: Total Profit And Budget Over Time
 
 ```{r total-budgets-profits, message = F}
@@ -305,7 +302,6 @@ grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA)
 
 ```
 
-
 ```{r size-mutate}
 horror_new |>
   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
@@ -345,8 +341,8 @@ horror_new2_1 <- horror_new2 |>
   mutate(profit = case_when(adj_profit2020 < 0 ~ "Unprofitable",
                             adj_profit2020 >= 0 & adj_profit2020 < adj_budget2020 ~ "Profitable",
                             adj_profit2020 >= adj_budget2020 ~ "Very Profitable")) |>
-  mutate(profit = as.factor(profit, levels = c("Very Profitable", "Profitable", "Unprofitable")),
-         genre_names = as.factor(genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
+  mutate(profit = fct_relevel(profit, c("Very Profitable", "Profitable", "Unprofitable")),
+         genre_names = fct_relevel(genre_names, c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
 
 
 #plot 1 
@@ -379,7 +375,6 @@ ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))
 ```
-
 
 ## Q2: Sentiment Analysis by Subgenre
 
@@ -465,5 +460,3 @@ newsentiment |>
     plot.subtitle = element_text(size = 18),
     axis.title = element_text(size = 18))
 ```
-
-
