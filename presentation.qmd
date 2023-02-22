@@ -64,10 +64,10 @@ horror_movies <- horror_movies |>
   select(!throwaway)
 ```
 
+Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
+
 ```{r adding-inflation}
 inflationdata <- read.csv("data/Dollar_inflation.csv")
-
-# Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
 
 inflationdata <- inflationdata |>
   filter(year != 2023) |>
@@ -88,6 +88,7 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
+<<<<<<< HEAD
 ```{r mutating-levels}
 # horror_new |>
 #   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
@@ -96,6 +97,8 @@ horror_new <- horror_new |>
 #                           TRUE ~ "small")) |>
 #   filter(release_year >= 2000, size!= "small") 
 ```
+=======
+>>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 # Introduction
 
@@ -105,14 +108,13 @@ horror_new <- horror_new |>
 
 -   Question 2: Are different subgenres associated with different characteristics (e.g. profitability, sentiment descriptions) within the broader horror genre?
 
-# Question Analysis
-
-How have trends in factors surrounding horror as a genre (e.g. popularity, budgets, etc) have changed over time?
+# Question 1 Analysis
 
 ## Q1: Movie Releases Over Time
 
 ```{r annotated-scatterplot}
 description1 <-
+<<<<<<< HEAD
   "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |>
   str_wrap(width = 40) #description for annotate
 
@@ -123,6 +125,18 @@ description2 <-
 description3 <-
   "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |>
   str_wrap(width = 40)
+=======
+  "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |> 
+  str_wrap(width=40)
+
+description2 <-
+  "7 of the 16 Horror Movies with the biggest profit were released in 1999 or 2000 marking the catalyzation of a decade long growth in the popularity of Horror Movies" |> 
+  str_wrap(width=40)
+
+description3 <-
+  "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |> 
+  str_wrap(width=40)
+>>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 plot_circle_purple <- horror_new |>
   group_by(release_year) |>
@@ -223,12 +237,21 @@ horror_new |>
 
 ```{r annotated-by-year, message = FALSE, warning = FALSE}
 description1 <-
+<<<<<<< HEAD
   "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |>
   str_wrap(width = 40) #description to put in annotation
 
 description2 <-
   "The stock market crashes in 2009. Questions about American economic security arise." |>
   str_wrap(width = 40)
+=======
+  "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |> 
+  str_wrap(width=40)
+
+description2 <-
+  "The stock market crashes in 2009. Questions about American economic security arise." |> 
+  str_wrap(width=40)
+>>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 horror_new |>
   mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
@@ -298,8 +321,6 @@ horror_summary <- horror_new |>
 
 
 p1 <- horror_summary |>
-  mutate(total_budget = total_budget / 1000000) |>
-  mutate(total_profit = total_profit / 1000000) |>
   ggplot(aes(x = release_year, y = total_budget)) +
   #geom_point(aes(col = "Total Budget"), alpha=0.1) +
   geom_line(aes(col = "Total Budget"), alpha=0.1, linewidth = 1) +
@@ -320,11 +341,11 @@ p1 <- horror_summary |>
         #legend.key.width = unit(3, 'cm'),
         plot.title = element_text(size=18),
         plot.subtitle = element_text(size=14),
-        axis.title=element_text(size=10),
+        axis.title=element_text(size=14),
         axis.title.x = element_blank()) +
   labs(
     #title = "Starting in 2007, Movie Directors realized they didn't need big #budgets to garner an audience for their movies",
-       y = "Dollars (2020 adjusted, millions)",
+       y = "Dollars (2020 adjusted)",
        #subtitle = "While total budget decreased, total profit continued to #increase"
        )
 
@@ -343,7 +364,9 @@ grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA)
 
 ```
 
+
 # Question 2 Analysis
+<<<<<<< HEAD
 
 Are different subgenres associated with different characteristics (e.g. profitability, descriptions) within the broader horror genre?
 
@@ -359,6 +382,8 @@ Are different subgenres associated with different characteristics (e.g. profitab
 #   ggplot(aes(x=release_year, y = count, color=size, fill=size)) +
 #   geom_col()
 ```
+=======
+>>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 ```{r mutating-horror-2}
 #pivoting longer with separate_rows
@@ -383,8 +408,9 @@ horror_new2_1 <- horror_new2 |>
   mutate(profit = case_when(adj_profit2020 < 0 ~ "Unprofitable",
                             adj_profit2020 >= 0 & adj_profit2020 < adj_budget2020 ~ "Profitable",
                             adj_profit2020 >= adj_budget2020 ~ "Very Profitable")) |>
-  mutate(profit = factor(profit, levels = c("Very Profitable", "Profitable", "Unprofitable")),
-         genre_names = factor(genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
+  mutate(profit = fct_relevel(profit, c("Very Profitable", "Profitable", "Unprofitable")),
+         genre_names = fct_relevel(genre_names, c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
+
 
 #plot 1 
 ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
@@ -417,7 +443,7 @@ ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
   theme(plot.subtitle = element_text(hjust = 0.5))
 ```
 
-## Q2: Sentiment Analysis by Subgenre with AFINN
+## Q2: Sentiment Analysis by Subgenre with BING Lexicon
 
 ```{r sentiment_data, message = FALSE, warning = FALSE}
 sentiment_horror <- horror_new2 |>
@@ -443,28 +469,6 @@ newsentiment <- horror_new2 |>
   inner_join(afinn_summary, by = c("title"))
 ```
 
-```{r boxplot-sentiments}
-newsentiment |>
-  filter(genre_names %in% popular_genre_names$genre_names) |>
-  ggplot(aes(x = fct_reorder(genre_names, averagesent), y = averagesent,
-             fill = genre_names)) +
-  geom_boxplot(show.legend = FALSE, color = "darkblue") +
-  coord_flip() +
-  scale_fill_manual(
-    values = c("lightslateblue","steelblue3","steelblue1","dodgerblue","cornflowerblue","lightskyblue")) +
-  labs(y = "Average Sentiment Score for Words in a Movie Tagline",
-       x = "Genre or Subgenre",
-       title = "AFINN Sentiment Score of Movie Taglines",
-       subtitle = "By Genre of Movie",
-       caption = "AFINN Score: Measure of positive/negative \n sentiment, from -5 to 5") +
-  theme(
-    plot.title = element_text(size = 20),
-    plot.subtitle = element_text(size = 18),
-    axis.title = element_text(size = 18))
-```
-
-## Q2: Sentiment Analysis by Subgenre with BING
-
 ```{r sentiment-plots, warning = F, message = F}
 notstacked <- sentiment_joined |>
   group_by(genre_names, sentiment) |>
@@ -483,9 +487,7 @@ notstacked <- sentiment_joined |>
 
 notstacked
 ```
-
-## Q2: Sentiment Analysis by Subgenre with BING
-
+## Q2 Sentiment by Proportion with BING Lexicon
 ```{r stacked, warning = FALSE, message = F}
 stacked <- sentiment_joined |>
   group_by(genre_names, sentiment) |>
@@ -506,25 +508,27 @@ stacked <- sentiment_joined |>
 stacked
 ```
 
-## Q2: Budgets by Subgenre
-
-```{r}
-horror_new2 |>
+## Q2: Sentiment by Subgenre by AFINN Lexicon 
+```{r boxplot-sentiments}
+newsentiment |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
-  filter(genre_names != "Horror") |>
-  mutate(adj_budget2020 = adj_profit2020 / 1000000) |>
-  ggplot(aes(x = genre_names,
-             y = adj_budget2020,
+  ggplot(aes(x = fct_reorder(genre_names, averagesent), y = averagesent,
              fill = genre_names)) +
-  geom_boxplot() + 
-  coord_flip(ylim = c(0, 120)) +
-  scale_fill_manual(values = c("steelblue3","steelblue1","dodgerblue","cornflowerblue","lightskyblue")) +
-  theme(legend.position = "none") +
-  labs(x = "Subgenre",
-       y = "Dollars (2020 Adjusted, by millions)",
-       title = "Budgets for Horror Films",
-       subtitle = "By Subgenre")
+  geom_boxplot(show.legend = FALSE, color = "darkblue") +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("lightslateblue","steelblue3","steelblue1","dodgerblue","cornflowerblue","lightskyblue")) +
+  labs(y = "Average Sentiment Score for Words in a Movie Tagline",
+       x = "Genre or Subgenre",
+       title = "AFINN Sentiment Score of Movie Taglines",
+       subtitle = "By Genre of Movie",
+       caption = "AFINN Score: Measure of positive/negative \n sentiment, from -5 to 5") +
+  theme(
+    plot.title = element_text(size = 20),
+    plot.subtitle = element_text(size = 18),
+    axis.title = element_text(size = 18))
 ```
+<<<<<<< HEAD
 
 ```{r boxplotsentiments}
 # newsentiment |>
@@ -545,3 +549,5 @@ horror_new2 |>
 #     plot.subtitle = element_text(size = 18),
 #     axis.title = element_text(size = 18))
 ```
+=======
+>>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
