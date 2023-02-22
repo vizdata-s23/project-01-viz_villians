@@ -1,5 +1,5 @@
 ---
-title: "Project title"
+title: "Horror Movie Visualizations"
 subtitle: "STA/ISS 313 - Spring 2023 - Project 1"
 author: "Viz Villains- Christopher Tsai, Chris Liang, Jason Zhang, Kevin Ordet"
 title-slide-attributes:

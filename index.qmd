@@ -1,7 +1,7 @@
 ---
 title: "Horror Movie Visualizations"
-subtitle: "STA/ISS 313 - Project 1"
-author: "Viz-Villains"
+subtitle: "STA/ISS 313 - Spring 2023 - Project 1"
+author: "Viz Villains- Christopher Tsai, Chris Liang, Jason Zhang, Kevin Ordet"
 format: html
 editor: visual
 ---
