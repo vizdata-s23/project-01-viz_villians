@@ -89,20 +89,13 @@ horror_new <- horror_new |>
 ```
 
 
-
-
-```{r}
+```{r mutating-levels}
 horror_new |>
   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
                           adj_budget2020 > 1000000 ~ "big",
                           adj_budget2020 > 100000 ~ "medium",
                           TRUE ~ "small")) |>
-  filter(release_year >= 2000, size!= "small") |>
-  group_by(release_year, size) |>
-  summarise(count = n(), total = sum(adj_budget2020)) |>
-  ggplot(aes(x=release_year, y = count, color=size, fill=size)) +
-  geom_col()
-  
+  filter(release_year >= 2000, size!= "small") 
 ```
 
 # Introduction
@@ -111,9 +104,9 @@ horror_new |>
 
 -   Question 1: How have trends in factors surrounding horror as a genre (e.g. popularity, budgets, etc) have changed over time?
 
--   Question 2: Are different subgenres associated with different characteristics (e.g. profitability, descriptions) within the broader horror genre?
+-   Question 2: Are different subgenres associated with different characteristics (e.g. profitability, sentiment descriptions) within the broader horror genre?
 
-# Analysis
+# Question 1 Analysis
 
 ## Q1: Movie Releases Over Time
 
@@ -327,7 +320,7 @@ horror_new |>
   
 ```
 
-# Part 2
+# Question 2 Analysis
 
 ```{r mutating-horror-2}
 #pivoting longer with separate_rows
@@ -388,7 +381,7 @@ ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
 ```
 
 
-## Q3: Sentiment Analysis by Subgenre
+## Q2: Sentiment Analysis by Subgenre
 
 ```{r sentiment_data, message = FALSE, warning = FALSE}
 sentiment_horror <- horror_new2 |>
