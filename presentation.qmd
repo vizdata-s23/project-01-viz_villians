@@ -23,6 +23,9 @@ library(dplyr)
 library(knitr)
 library(lubridate)
 library(ggforce)
+library(grid)
+library(gridExtra)
+
 ```
 
 ```{r setup, include = F}
@@ -293,31 +296,57 @@ scale_color_discrete(labels=c('English', 'Other'))
 ```
 
 ```{r}
-horror_new |>
+
+horror_summary <- horror_new |>
   group_by(release_year) |>
   summarise(total_budget = sum(adj_budget2020),
-            total_profit = sum(adj_profit2020)) |>
+            total_profit = sum(adj_profit2020),
+            count = n())
+
+
+
+p1 <- horror_summary |>
   ggplot(aes(x = release_year, y = total_budget)) +
-  geom_point(aes(col = "Total Budget")) +
-  geom_line(aes(col = "Total Budget")) +
-  geom_smooth(se = FALSE, aes(col = "Total Budget")) +
-  geom_point(aes(y = total_profit, col = "Total Profit")) +
-  geom_line(aes(y = total_profit, col = "Total Profit")) +
-  geom_smooth(aes(y = total_profit, col = "Total Profit"), se = FALSE) +
+  #geom_point(aes(col = "Total Budget"), alpha=0.1) +
+  geom_line(aes(col = "Total Budget"), alpha=0.1, size=1) +
+  geom_smooth(se = FALSE, aes(col = "Total Budget"), size=3, span=0.4) +
+  #geom_point(aes(y = total_profit, col = "Total Profit"), alpha=0.1) +
+  geom_line(aes(y = total_profit, col = "Total Profit"), alpha=0.1, size=1) +
+  geom_smooth(aes(y = total_profit, col = "Total Profit"),
+              se = FALSE, size=3, span=0.4) +
   scale_color_manual(name='',
                      breaks=c('Total Profit', 'Total Budget'),
                      values=c('Total Profit'='red', 'Total Budget'='blue')) +
-  theme(legend.key.size = unit(3, 'cm'), #change legend key size
-        legend.key.height = unit(3, 'cm'), #change legend key height
-        legend.key.width = unit(3, 'cm'),
+  scale_size(range = c(1, 15)) +
+  theme_minimal() +
+  theme(legend.position = c(0.1, 0.9),
+        legend.spacing.y = unit(0.2, 'cm'),
+        #legend.key.size = unit(3, 'cm'), #change legend key size
+        #legend.key.height = unit(3, 'cm'), #change legend key height
+        #legend.key.width = unit(3, 'cm'),
         plot.title = element_text(size=18),
         plot.subtitle = element_text(size=14),
-        axis.title=element_text(size=14)) +
-  labs(title = "Starting in 2007, Movie Directors realized they didn't need big budgets to garner an audience for their movies",
-       y = "$ adj. for inflation",
-       x = "Year",
-       subtitle = "While total budget decreased, total profit continued to increase"
+        axis.title=element_text(size=14),
+        axis.title.x = element_blank()) +
+  labs(
+    #title = "Starting in 2007, Movie Directors realized they didn't need big #budgets to garner an audience for their movies",
+       y = "Dollars (2020 adjusted)",
+       #subtitle = "While total budget decreased, total profit continued to #increase"
        )
+
+
+
+p2 <- horror_summary |>
+  ggplot(aes(x = release_year, y = count)) +
+  geom_col() +
+  theme_minimal()  +
+  labs(y = "Number of movies",
+       x = "Year"
+       )
+
+grid.arrange(p1, p2, nrow=2, heights=c(4, 2))
+grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA))
+
 ```
 
 ```{r}
