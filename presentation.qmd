@@ -264,8 +264,8 @@ horror_new |>
   group_by(release_year, en_language) |>
   summarise(count = n()) |>
   ggplot(aes(x = release_year, y = count, color = en_language)) +
-  geom_point() +
-  geom_line() +
+  geom_point(alpha = 0.3) +
+  geom_line(alpha = 0.3) +
   geom_smooth(se = FALSE) +
   geom_segment(x = 2001, xend = 2001, y = -5, yend = 27, col = "black", linewidth = 1.5) +
   geom_segment(x = 2009, xend = 2009, y = -5, yend = 45, col = "black", linewidth = 1.5) +
