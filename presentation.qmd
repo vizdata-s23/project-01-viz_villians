@@ -29,6 +29,7 @@ library(stringr)
 library(tidytext)
 library(textdata)
 library(cowplot)
+library(scales)
 ```
 
 ```{r setup, include = F}
