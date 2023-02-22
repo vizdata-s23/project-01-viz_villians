@@ -28,6 +28,7 @@ library(gridExtra)
 library(stringr)
 library(tidytext)
 library(textdata)
+library(cowplot)
 ```
 
 ```{r setup, include = F}
@@ -136,7 +137,6 @@ horror_new <- horror_new |>
   filter(adj_budget2020 >= 2000000,
          release_year >= 1980)
 ```
-
 
 ## Exploraty Data Visualizations
 
@@ -306,51 +306,57 @@ horror_summary <- horror_new |>
             count = n())
 
 
+
 p1 <- horror_summary |>
   ggplot(aes(x = release_year, y = total_budget)) +
-  #geom_point(aes(col = "Total Budget"), alpha=0.1) +
-  geom_line(aes(col = "Total Budget"), alpha=0.1, linewidth = 1) +
-  geom_smooth(se = FALSE, aes(col = "Total Budget"), linewidth = 3, span=0.4) +
-  #geom_point(aes(y = total_profit, col = "Total Profit"), alpha=0.1) +
-  geom_line(aes(y = total_profit, col = "Total Profit"), alpha=0.1, linewidth=1) +
+  geom_line(aes(col = "Total Budget"), alpha=0.1, linewidth=2) +
+  geom_smooth(se = FALSE, aes(col = "Total Budget"), linewidth=4, span=0.4) +
+  geom_line(aes(y = total_profit, col="Total Profit"), alpha=0.1, linewidth=2) +
   geom_smooth(aes(y = total_profit, col = "Total Profit"),
-              se = FALSE, size=3, span=0.4) +
+              se = FALSE, linewidth=4, span=0.4) +
   scale_color_manual(name='',
                      breaks=c('Total Profit', 'Total Budget'),
-                     values=c('Total Profit'='red', 'Total Budget'='blue')) +
+                     values=c('Total Profit'="#d95f02", 'Total Budget'="#7570b3")) +
   scale_size(range = c(1, 15)) +
+	scale_y_continuous(labels = label_number(prefix = "$", suffix = "B", scale = 1e-9)) +
+  coord_cartesian(xlim = c(1980 ,2022)) +
   theme_minimal() +
   theme(legend.position = c(0.1, 0.9),
-        legend.spacing.y = unit(0.2, 'cm'),
-        #legend.key.size = unit(3, 'cm'), #change legend key size
-        #legend.key.height = unit(3, 'cm'), #change legend key height
-        #legend.key.width = unit(3, 'cm'),
+        legend.spacing.y = unit(0.5, 'cm'),
+        legend.text = element_text(size=12),
         plot.title = element_text(size=18),
         plot.subtitle = element_text(size=14),
         axis.title=element_text(size=14),
-        axis.title.x = element_blank()) +
-  labs(
-    #title = "Starting in 2007, Movie Directors realized they didn't need big #budgets to garner an audience for their movies",
-       y = "Dollars (2020 adjusted)",
-       #subtitle = "While total budget decreased, total profit continued to #increase"
-       )
+        axis.title.x = element_blank(),
+        axis.text = element_text(size=12),
+        axis.text.x = element_blank()) +
+  labs(y = "Dollars (in billions)",
+       title = "Total profits trended up from the late 1990s to the pre-COVID 2010s, while total budgets stagnated")
+  
 
 
 
 p2 <- horror_summary |>
-  ggplot(aes(x = release_year, y = count)) +
+  mutate(max = ifelse(release_year == 2009, "1", "0")) |>
+  ggplot(aes(x = release_year, y = count, fill =max)) +
   geom_col() +
   theme_minimal()  +
+  scale_fill_manual(values=c("darkgrey", "#1b9e77"))+
   labs(y = "Number of movies",
-       x = "Year"
-       )
+       x = "Year",
+       caption = "Note: Dollars are 2020 inflation adjusted") + 
+  coord_cartesian(xlim = c(1980 ,2022)) +
+  theme(axis.title=element_text(size=14),
+        axis.text = element_text(size=12),
+        plot.caption= element_text(size=10),
+        legend.position = "none")
 
-grid.arrange(p1, p2, nrow=2, heights=c(4, 2))
-grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA))
+
+
+
+plot_grid(p1, p2, ncol = 1, align = "v", rel_heights = c(2,1))
 
 ```
-
-
 
 ```{r}
 horror_new |>
@@ -380,7 +386,6 @@ popular_genre_names <- horror_new2 |>
   arrange(desc(prop)) |>
   head(6)
 ```
-
 
 ```{r}
 horror_new2 |>
@@ -480,7 +485,6 @@ newsentiment |>
   geom_boxplot(show.legend = FALSE) +
   coord_flip()
 ```
-
 
 ## Plots
 
