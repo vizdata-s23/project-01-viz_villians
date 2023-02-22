@@ -64,10 +64,10 @@ horror_movies <- horror_movies |>
   select(!throwaway)
 ```
 
-Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
-
 ```{r adding-inflation}
 inflationdata <- read.csv("data/Dollar_inflation.csv")
+
+# Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
 
 inflationdata <- inflationdata |>
   filter(year != 2023) |>
@@ -88,7 +88,6 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
-<<<<<<< HEAD
 ```{r mutating-levels}
 # horror_new |>
 #   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
@@ -97,8 +96,6 @@ horror_new <- horror_new |>
 #                           TRUE ~ "small")) |>
 #   filter(release_year >= 2000, size!= "small") 
 ```
-=======
->>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 # Introduction
 
@@ -114,7 +111,6 @@ horror_new <- horror_new |>
 
 ```{r annotated-scatterplot}
 description1 <-
-<<<<<<< HEAD
   "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |>
   str_wrap(width = 40) #description for annotate
 
@@ -123,9 +119,6 @@ description2 <-
   str_wrap(width = 40)
 
 description3 <-
-  "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |>
-  str_wrap(width = 40)
-=======
   "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |> 
   str_wrap(width=40)
 
@@ -136,7 +129,6 @@ description2 <-
 description3 <-
   "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |> 
   str_wrap(width=40)
->>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 plot_circle_purple <- horror_new |>
   group_by(release_year) |>
@@ -237,21 +229,16 @@ horror_new |>
 
 ```{r annotated-by-year, message = FALSE, warning = FALSE}
 description1 <-
-<<<<<<< HEAD
   "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |>
   str_wrap(width = 40) #description to put in annotation
 
 description2 <-
   "The stock market crashes in 2009. Questions about American economic security arise." |>
   str_wrap(width = 40)
-=======
-  "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |> 
-  str_wrap(width=40)
 
 description2 <-
   "The stock market crashes in 2009. Questions about American economic security arise." |> 
   str_wrap(width=40)
->>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 horror_new |>
   mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
@@ -366,7 +353,6 @@ grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA)
 
 
 # Question 2 Analysis
-<<<<<<< HEAD
 
 Are different subgenres associated with different characteristics (e.g. profitability, descriptions) within the broader horror genre?
 
@@ -382,8 +368,6 @@ Are different subgenres associated with different characteristics (e.g. profitab
 #   ggplot(aes(x=release_year, y = count, color=size, fill=size)) +
 #   geom_col()
 ```
-=======
->>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
 
 ```{r mutating-horror-2}
 #pivoting longer with separate_rows
@@ -528,7 +512,6 @@ newsentiment |>
     plot.subtitle = element_text(size = 18),
     axis.title = element_text(size = 18))
 ```
-<<<<<<< HEAD
 
 ```{r boxplotsentiments}
 # newsentiment |>
@@ -549,5 +532,4 @@ newsentiment |>
 #     plot.subtitle = element_text(size = 18),
 #     axis.title = element_text(size = 18))
 ```
-=======
->>>>>>> 13b129f509051c76fe4a4526f363af3137247ac5
+
