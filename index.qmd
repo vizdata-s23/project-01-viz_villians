@@ -30,11 +30,184 @@ To make this plot we also needed to use the budget and profit data given in the 
 
 To answer this question we will make 2 line plots using geom_line() and will use geom_smooth() to create a trend line that shows us the short-term trends in the data. We will also be making a scatter plot using geom_point() to look at individual observations of the data.
 
-We first made a scatter plot where each point corresponded to the total number of horror movies made for theatrical release in each year. Because we wanted to look at individual observations (ie. the year 2009 and how many movies were made then)
+We first made a scatter plot where each point corresponded to the total number of horror movies made for theatrical release in each year. Because we wanted to look at individual observations (ie. the year 2009 and how many movies were made then) a scatter plot and then circling the observations we wanted to note would be the best way to do so. We then made a line plot using geom_line() and the used geom_smooth() to add a trend line. This plot wanted to initially look at the general trend of movie popularity over time and then relate it to the socioeconomic/political status of the United States at the time. Using geom_smooth() to create a trend line would easily allow us to see the direct impact of certain events on the popularity of horror movies while also allowing us to see when horror movies truly began to increase in popularity, decrease in popularity, and max out in popularity.
 
 ### Analysis
 
-(2-3 code blocks, 2 figures, text/code comments as needed): In this section, provide the code that generates your plots. Use scale functions to provide nice axis labels and guides. You are welcome to use theme functions to customize the appearance of your plot, but you are not required to do so. All plots must be made with **ggplot2**. Do not use base R or lattice plotting functions.
+```{r}
+#| label: scatterplot-popularity-graph
+description1 <-
+  "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |>
+  str_wrap(width = 40) #description for annotate
+
+description2 <-
+  "7 of the 16 Horror Movies with the biggest profit were released in 1999 or 2000 marking the catalyzation of a decade long growth in the popularity of Horror Movies" |>
+  str_wrap(width = 40)
+
+description3 <-
+  "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |>
+  str_wrap(width = 40)
+
+plot_circle_purple <- horror_new |>
+  group_by(release_year) |>
+  summarise(count = n()) |>
+  filter(release_year == 2009 |
+           release_year == 2010) #create dataset for circles around plot points of note
+
+plot_circle_blue <- horror_new |>
+  group_by(release_year) |>
+  summarise(count = n()) |>
+  filter(release_year == 1999 | release_year == 2000)
+
+plot_circle_black <- horror_new |>
+  group_by(release_year) |>
+  summarise(count = n()) |>
+  filter(release_year == 2019 | release_year == 2020)
+
+horror_new |>
+  group_by(release_year) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = release_year, y = count)) +
+  geom_point(size = 3) +
+  geom_point(
+    data = plot_circle_purple,
+    pch = 21,
+    size = 8,
+    colour = "purple"
+  ) +
+  geom_point(
+    data = plot_circle_blue,
+    pch = 21,
+    size = 8,
+    colour = "deepskyblue4"
+  ) +
+  geom_point(
+    data = plot_circle_black,
+    pch = 21,
+    size = 8,
+    colour = "black"
+  ) + #adds circle around plot points of note
+  annotate(
+    "label",
+    x = 2000,
+    y = 67,
+    label = description1,
+    alpha = 0.6,
+    size = 5,
+    color = "purple"
+  ) + #adds the annotation with the text in the same color as the annotation of note
+  annotate(
+    "label",
+    x = 1995,
+    y = 40,
+    label = description2,
+    alpha = 0.6,
+    size = 5,
+    color = "deepskyblue4"
+  ) +
+  geom_ellipse(aes(
+    x0 = 2019.6,
+    y0 = 30.7,
+    a = 11.3,
+    b = 1,
+    angle =  -1.45 * pi / 3
+  ),
+  color = "black") + #draws an ellipse around the 2019 and 2020 points
+  annotate(
+    "label",
+    x = 2012,
+    y = 20,
+    label = description3,
+    alpha = 0.8,
+    size = 5
+  ) +
+  labs(
+    title = "How the number of horror movies launched for theatrical release changed over time",
+    subtitle = "From 1980-2020",
+    x = "Year",
+    y = "Number of Horror Movies",
+    color = "Language"
+  ) +
+  theme(
+    legend.key.size = unit(3, 'cm'),
+    #change legend key size
+    legend.key.height = unit(3, 'cm'),
+    #change legend key height
+    legend.key.width = unit(3, 'cm'),
+    #change legend key width
+    plot.title = element_text(size = 18),
+    #increases size of plot title
+    plot.subtitle = element_text(size = 18),
+    axis.title = element_text(size = 14)
+  ) +
+  scale_color_discrete(labels = c('English', 'Other')) #changes the names on the legends
+```
+
+```{r}
+#| label: lineplot-popularity-graph
+description1 <-
+  "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |>
+  str_wrap(width = 40) #description to put in annotation
+
+description2 <-
+  "The stock market crashes in 2009. Questions about American economic security arise." |>
+  str_wrap(width = 40)
+
+horror_new |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  group_by(release_year, en_language) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = release_year, y = count, color = en_language)) + #adds different line plot based on the language the movie was in
+  geom_point(alpha = 0.3) +
+  geom_line(alpha = 0.3) +
+  geom_smooth(se = FALSE) +
+  geom_segment(
+    x = 2001,
+    xend = 2001,
+    y = -5,
+    yend = 27,
+    col = "black",
+    linewidth = 1.5
+  ) + #adds vertical line at 2001
+  geom_segment(
+    x = 2009,
+    xend = 2009,
+    y = -5,
+    yend = 45,
+    col = "black",
+    linewidth = 1.5
+  ) +
+  annotate(
+    "label",
+    x = 1995,
+    y = 35,
+    label = description1,
+    alpha = 0.6,
+    size = 5
+  ) +
+  annotate(
+    "label",
+    x = 2015.5,
+    y = 51,
+    label = description2,
+    alpha = 0.6,
+    size = 5
+  ) +
+  labs(
+    title = "Uncertainty and Anxiety- How Horror Flicks Popularity Correlates with a Need for an Outlet of Fears",
+    x = "Year",
+    y = "Total Number of Movies for Theatrical Release",
+    color = "Language"
+  ) +
+  theme(
+    legend.key.size = unit(3, 'cm'),
+    legend.key.height = unit(3, 'cm'),
+    legend.key.width = unit(3, 'cm'),
+    plot.title = element_text(size = 18),
+    axis.title = element_text(size = 14)
+  ) +
+  scale_color_discrete(labels = c('English', 'Other'))
+```
 
 ### Discussion
 
