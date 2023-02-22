@@ -88,6 +88,14 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
+```{r mutating-levels}
+# horror_new |>
+#   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
+#                           adj_budget2020 > 1000000 ~ "big",
+#                           adj_budget2020 > 100000 ~ "medium",
+#                           TRUE ~ "small")) |>
+#   filter(release_year >= 2000, size!= "small") 
+```
 # Introduction
 
 ## Horror Movie Analysis
@@ -105,15 +113,15 @@ How have trends in factors surrounding horror as a genre (e.g. popularity, budge
 ```{r annotated-scatterplot}
 description1 <-
   "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |> 
-  str_wrap(width=40)
+  stringr::str_wrap(width=40)
 
 description2 <-
   "7 of the 16 Horror Movies with the biggest profit were released in 1999 or 2000 marking the catalyzation of a decade long growth in the popularity of Horror Movies" |> 
-  str_wrap(width=40)
+  stringr::str_wrap(width=40)
 
 description3 <-
   "Number of Horror Movies released in 2020 drastically decreases, likely due to COVID-19. The ability to make movies and the number of possible audience members decreased." |> 
-  str_wrap(width=40)
+  stringr::str_wrap(width=40)
 
 plot_circle_purple <- horror_new |>
   group_by(release_year) |>
@@ -194,11 +202,11 @@ scale_color_discrete(labels=c('English', 'Other'))
 ```{r annotated-by-year, message = FALSE, warning = FALSE}
 description1 <-
   "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |> 
-  str_wrap(width=40)
+  stringr::str_wrap(width=40)
 
 description2 <-
   "The stock market crashes in 2009. Questions about American economic security arise." |> 
-  str_wrap(width=40)
+  stringr::str_wrap(width=40)
 
 horror_new |>
   mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
@@ -368,7 +376,6 @@ ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))
 ```
-
 
 ## Q2: Sentiment Analysis by Subgenre with AFINN
 
