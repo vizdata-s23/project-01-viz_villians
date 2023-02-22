@@ -1,5 +1,5 @@
 ---
-title: "Project title"
+title: "Horror Movie Visualizations"
 subtitle: "STA/ISS 313 - Spring 2023 - Project 1"
 author: "Viz Villains- Christopher Tsai, Chris Liang, Jason Zhang, Kevin Ordet"
 title-slide-attributes:
@@ -485,6 +485,37 @@ newsentiment |>
              fill = genre_names)) +
   geom_boxplot(show.legend = FALSE) +
   coord_flip()
+```
+
+```{r}
+horror_new2_1 <- horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  mutate(en_language = ifelse(original_language == "en", "English", "Non-English")) |>
+  mutate(profit = case_when(adj_profit2020 < 0 ~ "Unprofitable",
+                            adj_profit2020 >= 0 & adj_profit2020 < adj_budget2020 ~ "Profitable",
+                            adj_profit2020 >= adj_budget2020 ~ "Very Profitable"))
+
+horror_new2_1$profit <- factor(horror_new2_1$profit, levels = c("Very Profitable", "Profitable", "Unprofitable"))
+horror_new2_1$genre_names <- factor(horror_new2_1$genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery"))
+
+ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
+  geom_bar(position = "fill") +
+  scale_y_discrete(limits = rev) +
+  labs(title = "Differences in Profitabilty Between Subgenres",
+       subtitle = "for Horror Movies",
+       x = "Proportion",
+       y = "Subgenre") +
+  scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))
+
+ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
+  geom_bar(position = "fill") +
+  facet_wrap(. ~ en_language, ncol = 1) +
+  scale_y_discrete(limits = rev)+
+  labs(title = "Differences in Profitabilty Between Subgenres",
+       subtitle = "for Horror Movies, by Language",
+       x = "Proportion",
+       y = "Subgenre") +
+  scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))
 ```
 
 ## Plots
