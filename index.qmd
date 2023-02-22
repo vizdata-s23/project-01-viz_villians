@@ -68,23 +68,23 @@ horror_new |>
   group_by(release_year) |>
   summarise(count = n()) |>
   ggplot(aes(x = release_year, y = count)) +
-  geom_point(size = 3) +
+  geom_point(size = 1) +
   geom_point(
     data = plot_circle_purple,
     pch = 21,
-    size = 8,
+    size = 5,
     colour = "purple"
   ) +
   geom_point(
     data = plot_circle_blue,
     pch = 21,
-    size = 8,
+    size = 5,
     colour = "deepskyblue4"
   ) +
   geom_point(
     data = plot_circle_black,
     pch = 21,
-    size = 8,
+    size = 5,
     colour = "black"
   ) + #adds circle around plot points of note
   annotate(
@@ -93,7 +93,7 @@ horror_new |>
     y = 67,
     label = description1,
     alpha = 0.6,
-    size = 5,
+    size = 2.3,
     color = "purple"
   ) + #adds the annotation with the text in the same color as the annotation of note
   annotate(
@@ -102,7 +102,7 @@ horror_new |>
     y = 40,
     label = description2,
     alpha = 0.6,
-    size = 5,
+    size = 2.3,
     color = "deepskyblue4"
   ) +
   geom_ellipse(aes(
@@ -119,10 +119,10 @@ horror_new |>
     y = 20,
     label = description3,
     alpha = 0.8,
-    size = 5
+    size = 2.3
   ) +
   labs(
-    title = "How the number of horror movies launched for theatrical release changed over time",
+    title = "How the number of horror movies launched for \ntheatrical release changed over time",
     subtitle = "From 1980-2020",
     x = "Year",
     y = "Number of Horror Movies",
@@ -135,10 +135,10 @@ horror_new |>
     #change legend key height
     legend.key.width = unit(3, 'cm'),
     #change legend key width
-    plot.title = element_text(size = 18),
+    plot.title = element_text(size = 12),
     #increases size of plot title
-    plot.subtitle = element_text(size = 18),
-    axis.title = element_text(size = 14)
+    plot.subtitle = element_text(size = 10),
+    axis.title = element_text(size = 10)
   ) +
   scale_color_discrete(labels = c('English', 'Other')) #changes the names on the legends
 ```
@@ -183,7 +183,7 @@ horror_new |>
     y = 35,
     label = description1,
     alpha = 0.6,
-    size = 5
+    size = 2.3
   ) +
   annotate(
     "label",
@@ -191,20 +191,21 @@ horror_new |>
     y = 51,
     label = description2,
     alpha = 0.6,
-    size = 5
+    size = 2.3
   ) +
   labs(
-    title = "Uncertainty and Anxiety- How Horror Flicks Popularity Correlates with a Need for an Outlet of Fears",
+    title = "Uncertainty and Anxiety- \nHow Horror Flicks Popularity Correlates with a 
+Need for an Outlet of Fears",
     x = "Year",
     y = "Total Number of Movies for Theatrical Release",
     color = "Language"
   ) +
   theme(
-    legend.key.size = unit(3, 'cm'),
-    legend.key.height = unit(3, 'cm'),
-    legend.key.width = unit(3, 'cm'),
-    plot.title = element_text(size = 18),
-    axis.title = element_text(size = 14)
+    legend.key.size = unit(0.25, 'cm'),
+    legend.key.height = unit(0.35, 'cm'),
+    legend.key.width = unit(0.25, 'cm'),
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 10)
   ) +
   scale_color_discrete(labels = c('English', 'Other'))
 ```
