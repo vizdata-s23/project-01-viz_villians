@@ -32,6 +32,8 @@ To answer this question we will make 2 line plots using geom_line() and will use
 
 We first made a scatter plot where each point corresponded to the total number of horror movies made for theatrical release in each year. Because we wanted to look at individual observations (ie. the year 2009 and how many movies were made then) a scatter plot and then circling the observations we wanted to note would be the best way to do so. We then made a line plot using geom_line() and the used geom_smooth() to add a trend line. This plot wanted to initially look at the general trend of movie popularity over time and then relate it to the socioeconomic/political status of the United States at the time. Using geom_smooth() to create a trend line would easily allow us to see the direct impact of certain events on the popularity of horror movies while also allowing us to see when horror movies truly began to increase in popularity, decrease in popularity, and max out in popularity.
 
+The second plot shows the total budget and profit for each year using geom_line(), as well as a trendline for each time series using geom_smooth(). Additionally, at the bottom of the plot is a column plot of the total number of movies for each year using geom_col(). This visualization allows us to understand the popularity of horror movies over time without using a statistic like the mean or median, which would be heavily skewed by very small movies. We felt that the total profit and budget were better proxies for popularity, and the column plot at the bottom adds context.
+
 ### Analysis
 
 ```{r}
