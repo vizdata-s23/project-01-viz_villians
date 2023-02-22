@@ -20,11 +20,17 @@ This project takes data extracted from [The Movie Database](https://www.themovie
 
 ### Introduction
 
-(1-2 paragraphs): Introduction to the question and what parts of the dataset are necessary to answer the question. Also discuss why you're interested in this question.
+In this question we wanted to look at how the popularity of movies changed over the years 1980 to 2022. The first thing we had to do was figure out to measure popularity over time. We decided that measuring how many movies were released in that given year for the theater (which equated to having a budget of over \$2,000,000 in 2022 dollars) would be a good estimator of the popularity of horror movies in a given year. We also decided to look at the popularity of both English and Foreign language horror films to see if there was a difference in the popularity trends of those.
+
+To make this plot we also needed to use the budget and profit data given in the dataset. However, this data was given in the dollar value of the year that the movie was released. In order to scale these amounts to make them comparable, we found a data set that showed how much one dollar in 1950 was worth in that given year. We figured it would make more sense to the audience to have each dollar amount interpreted in terms of 2022 dollars so we reversed the scale to make each dollar amount in budget and profit be in terms of 2022 dollars. We were interested in this question because given the limitations of our data it was one of the only things that might show an interesting trend and we were also interested in how the climate/environment (political, recent big horror movies, etc.) may effect the number of films released in a given year.
 
 ### Approach
 
 (1-2 paragraphs): Describe what types of plots you are going to make to address your question. For each plot, provide a clear explanation as to why this plot (e.g. boxplot, barplot, histogram, etc.) is best for providing the information you are asking about. The two plots should be of different types, and at least one of the two plots needs to use either color mapping or facets.
+
+To answer this question we will make 2 line plots using geom_line() and will use geom_smooth() to create a trend line that shows us the short-term trends in the data. We will also be making a scatter plot using geom_point() to look at individual observations of the data.
+
+We first made a scatter plot where each point corresponded to the total number of horror movies made for theatrical release in each year. Because we wanted to look at individual observations (ie. the year 2009 and how many movies were made then)
 
 ### Analysis
 
