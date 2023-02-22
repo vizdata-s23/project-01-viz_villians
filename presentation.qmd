@@ -53,39 +53,6 @@ knitr::opts_chunk$set(
 horror_movies <- read.csv("data/horror_movies.csv")
 ```
 
-# Using Quarto for presentations
-
-## Quarto
-
--   The presentation is created using the Quarto CLI
-
--   `##` sets the start of a new slide
-
-## Layouts
-
-You can use plain text
-
--   or bullet points
-
-::: columns
-::: {.column width="50%"}
-or text in two columns $^*$
-:::
-
-::: {.column width="50%"}
--   like
--   this
-:::
-:::
-
-### 
-
-::: aside
-\[\*\] And add footnotes
-:::
-
-## Mutating and Joining Datasets
-
 ```{r mutate-dataset, warning = F}
 horror_movies <- horror_movies |>
   mutate(profit = revenue - budget,
@@ -121,28 +88,34 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
-## Exploratory Data Visualizations
 
-```{r rudimentary-histogram}
-ggplot(horror_new, aes(x = adj_budget2020)) +
-  geom_histogram(boundary = 0, bins = 100)
 
-ggplot(horror_new, aes(x = adj_profit2020)) +
-  geom_histogram(bins = 100)
-```
 
-```{r rudimentary-2, message = FALSE}
-ggplot(horror_new, aes(x = release_year, y = prop_profit)) +
-  geom_point() +
-  geom_smooth(se = FALSE)
-
+```{r}
 horror_new |>
-  #filter(adj_profit > 0) |>  
-  ggplot(aes(x = release_year, y = adj_profit2020)) +
-  geom_point() +
-  geom_smooth(se = FALSE, color = "red")
-  #coord_cartesian(ylim = c(0, 50000))
+  mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
+                          adj_budget2020 > 1000000 ~ "big",
+                          adj_budget2020 > 100000 ~ "medium",
+                          TRUE ~ "small")) |>
+  filter(release_year >= 2000, size!= "small") |>
+  group_by(release_year, size) |>
+  summarise(count = n(), total = sum(adj_budget2020)) |>
+  ggplot(aes(x=release_year, y = count, color=size, fill=size)) +
+  geom_col()
+  
 ```
+
+# Introduction
+
+## Horror Movie Analysis
+
+-   Question 1: How have trends in factors surrounding horror as a genre (e.g. popularity, budgets, etc) have changed over time?
+
+-   Question 2: Are different subgenres associated with different characteristics (e.g. profitability, descriptions) within the broader horror genre?
+
+# Analysis
+
+## Q1: Movie Releases Over Time
 
 ```{r annotated-scatterplot}
 description1 <-
@@ -180,11 +153,11 @@ horror_new |>
   geom_point(data = plot_circle_purple,
              pch=21,
              size=8,
-             colour="purple") +
+             colour="navy") +
   geom_point(data = plot_circle_blue,
              pch=21,
              size=8,
-             colour="deepskyblue4") +
+             colour="steelblue1") +
    geom_point(data = plot_circle_black,
              pch=21,
              size=8,
@@ -196,7 +169,7 @@ horror_new |>
     label = description1,
     alpha = 0.6,
     size = 5,
-    color = "purple"
+    color = "navy"
   ) +
 annotate(
     "label",
@@ -205,7 +178,7 @@ annotate(
     label = description2,
     alpha = 0.6,
     size = 5,
-    color = "deepskyblue4"
+    color = "steelblue1"
   ) +
 geom_ellipse(aes(x0 = 2019.6, y0 = 30.7, a = 11.3, b = 1, angle =  -1.45 * pi / 3), color = "black") +
   annotate(
@@ -229,8 +202,9 @@ theme(
   plot.subtitle = element_text(size=18),
   axis.title=element_text(size=14)) +
 scale_color_discrete(labels=c('English', 'Other'))
-
 ```
+
+## Q1: Characteristics: English and Non-English
 
 ```{r annotated-by-year, message = FALSE, warning = FALSE}
 description1 <-
@@ -278,10 +252,15 @@ theme(
   legend.position = "top",
   plot.title = element_text(size=18),
   axis.title=element_text(size=14)) +
-scale_color_discrete(labels=c('English', 'Other'))
+scale_color_discrete(labels=c('English', 'Other')) +
+scale_color_manual(values = c("navy", "steelblue1"))
 ```
 
-```{r total-budgets-profits, message = F, warning = F}
+
+
+## Q1: Total Profit And Budget Over Time
+
+```{r total-budgets-profits, message = F}
 horror_summary <- horror_new |>
   group_by(release_year) |>
   summarise(total_budget = sum(adj_budget2020),
@@ -300,7 +279,7 @@ p1 <- horror_summary |>
               se = FALSE, linewidth=3, span=0.4) +
   scale_color_manual(name='',
                      breaks=c('Total Profit', 'Total Budget'),
-                     values=c('Total Profit'='red', 'Total Budget'='blue')) +
+                     values=c('Total Profit'='navy', 'Total Budget'='lightblue')) +
   scale_size(range = c(1, 15)) +
   theme_minimal() +
   theme(legend.position = c(0.1, 0.9),
@@ -332,6 +311,7 @@ grid.arrange(p1, p2, nrow=2, heights=c(4, 2))
 grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA))
 
 ```
+
 
 ```{r size-mutate}
 horror_new |>
@@ -365,8 +345,51 @@ popular_genre_names <- horror_new2 |>
   head(6)
 ```
 
+## Q2: Subgenres and Profitability
 
-## Sentiment Analysis
+```{r}
+horror_new2_1 <- horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  mutate(en_language = ifelse(original_language == "en", "English", "Non-English")) |>
+  mutate(profit = case_when(adj_profit2020 < 0 ~ "Unprofitable",
+                            adj_profit2020 >= 0 & adj_profit2020 < adj_budget2020 ~ "Profitable",
+                            adj_profit2020 >= adj_budget2020 ~ "Very Profitable"))
+
+horror_new2_1$profit <- factor(horror_new2_1$profit, levels = c("Very Profitable", "Profitable", "Unprofitable"))
+horror_new2_1$genre_names <- factor(horror_new2_1$genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery"))
+
+ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
+  geom_bar(position = "fill") +
+  scale_y_discrete(limits = rev) +
+  labs(title = "Differences in Profitabilty Between Subgenres",
+       subtitle = "for Horror Movies",
+       x = "Proportion",
+       y = "Subgenre",
+       fill = "Profit Level") +
+  scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))  +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+```
+
+## Q2: Subgenres and Profitability by Language
+
+```{r}
+ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
+  geom_bar(position = "fill") +
+  facet_wrap(. ~ en_language, ncol = 1) +
+  scale_y_discrete(limits = rev)+
+  labs(title = "Differences in Profitabilty Between Subgenres",
+       subtitle = "for Horror Movies, by Language",
+       x = "Proportion",
+       y = "Subgenre",
+       fill = "Profit Level") +
+  scale_fill_manual(values = c("navy", "steelblue1", "lightblue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+```
+
+
+## Q3: Sentiment Analysis by Subgenre
 
 ```{r sentiment_data, message = FALSE, warning = FALSE}
 sentiment_horror <- horror_new2 |>
@@ -421,7 +444,7 @@ stacked <- sentiment_joined |>
        y = "Proportion of \n Positive/Negatives",
        caption = "The BING Lexicon produces \n negative or positive for a word")
 
-notstacked / stacked
+# notstacked / stacked
 ```
 
 ```{r boxplot-sentiments}
@@ -446,6 +469,7 @@ newsentiment |>
 
 ### Profitability 
 
+
 ```{r profitability-plots}
 horror_new2_1 <- horror_new2 |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
@@ -455,26 +479,6 @@ horror_new2_1 <- horror_new2 |>
                             adj_profit2020 >= adj_budget2020 ~ "Very Profitable")) |>
   mutate(profit = as.factor(profit, levels = c("Very Profitable", "Profitable", "Unprofitable")),
          genre_names = as.factor(genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
-
-
-ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
-  geom_bar(position = "fill") +
-  scale_y_discrete(limits = rev) +
-  labs(title = "Differences in Profitabilty Between Subgenres",
-       subtitle = "for Horror Movies",
-       x = "Proportion",
-       y = "Subgenre") +
-  scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))
-
-ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
-  geom_bar(position = "fill") +
-  facet_wrap(. ~ en_language, ncol = 1) +
-  scale_y_discrete(limits = rev)+
-  labs(title = "Differences in Profitabilty Between Subgenres",
-       subtitle = "for Horror Movies, by Language",
-       x = "Proportion",
-       y = "Subgenre") +
-  scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))
 ```
 
 ### Budgets
@@ -488,4 +492,5 @@ horror_new2 |>
   geom_boxplot() + 
   coord_flip(ylim = c(0, 1e08)) 
 ```
+
 
