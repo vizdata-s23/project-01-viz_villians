@@ -121,7 +121,6 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
-
 ## Exploratory Data Visualizations
 
 ```{r rudimentary-histogram}
@@ -282,7 +281,7 @@ theme(
 scale_color_discrete(labels=c('English', 'Other'))
 ```
 
-```{r total-budgets-profits, message = F}
+```{r total-budgets-profits, message = F, warning = F}
 horror_summary <- horror_new |>
   group_by(release_year) |>
   summarise(total_budget = sum(adj_budget2020),
@@ -298,7 +297,7 @@ p1 <- horror_summary |>
   #geom_point(aes(y = total_profit, col = "Total Profit"), alpha=0.1) +
   geom_line(aes(y = total_profit, col = "Total Profit"), alpha=0.1, linewidth=1) +
   geom_smooth(aes(y = total_profit, col = "Total Profit"),
-              se = FALSE, size=3, span=0.4) +
+              se = FALSE, linewidth=3, span=0.4) +
   scale_color_manual(name='',
                      breaks=c('Total Profit', 'Total Budget'),
                      values=c('Total Profit'='red', 'Total Budget'='blue')) +
@@ -334,9 +333,7 @@ grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA)
 
 ```
 
-
-
-```{r}
+```{r size-mutate}
 horror_new |>
   mutate(size = case_when(adj_budget2020 > 10000000 ~ "huge",
                           adj_budget2020 > 1000000 ~ "big",
@@ -352,7 +349,10 @@ horror_new |>
 
 # Part 2
 
+Nothing - adj profit, runtime, vote counts/average, prop_profit
+
 ```{r mutating-horror-2}
+#pivoting longer with separate_rows
 horror_new2 <- horror_new |>
   separate_rows(genre_names, sep = ",\\s+")
 
@@ -365,60 +365,6 @@ popular_genre_names <- horror_new2 |>
   head(6)
 ```
 
-
-```{r}
-horror_new2 |>
-  filter(genre_names %in% popular_genre_names$genre_names) |>
-  filter(genre_names != "Horror") |>
-  ggplot(aes(x = genre_names,
-             y = adj_profit2020)) +
-  geom_boxplot() + 
-  coord_flip(ylim = c(-1e8, 1e8)) 
-```
-
-```{r}
-horror_new2 |>
-  group_by(release_year) |>
-  summarise(meanruntime = mean(runtime)) |>
-  ggplot(aes(x = release_year,
-             y = meanruntime)) + 
-  geom_point() + 
-  geom_smooth() +
-  coord_cartesian(ylim = c(80, 115))
-```
-
-```{r}
-horror_new2 |>
-  ggplot(aes(x = runtime,
-             y = prop_profit)) + 
-  geom_point() + 
-  geom_smooth() +
-  scale_x_continuous(limits = c(50, 200))
-```
-
-```{r}
-horror_new2 |>
-  filter(genre_names %in% popular_genre_names$genre_names,
-         genre_names != "Horror") |>
-  ggplot(aes(x = runtime)) +
-  geom_histogram() +
-  facet_wrap(~ genre_names)
-```
-
-```{r}
-ggplot(horror_new2, aes(x = prop_profit)) +
-  geom_histogram(bins = 100) + 
-  coord_cartesian(xlim = c(-5,5))
-```
-
-```{r}
-horror_new |>
-  ggplot(aes(x = adj_budget1950,
-             y = prop_profit)) +
-  geom_point() +
-  geom_smooth() +
-  coord_cartesian(xlim = c(0, 1000000))
-```
 
 ## Sentiment Analysis
 
@@ -478,7 +424,6 @@ stacked <- sentiment_joined |>
 notstacked / stacked
 ```
 
-
 ```{r boxplot-sentiments}
 newsentiment |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
@@ -499,17 +444,18 @@ newsentiment |>
     axis.title = element_text(size = 18))
 ```
 
+### Profitability 
 
-```{r}
+```{r profitability-plots}
 horror_new2_1 <- horror_new2 |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
   mutate(en_language = ifelse(original_language == "en", "English", "Non-English")) |>
   mutate(profit = case_when(adj_profit2020 < 0 ~ "Unprofitable",
                             adj_profit2020 >= 0 & adj_profit2020 < adj_budget2020 ~ "Profitable",
-                            adj_profit2020 >= adj_budget2020 ~ "Very Profitable"))
+                            adj_profit2020 >= adj_budget2020 ~ "Very Profitable")) |>
+  mutate(profit = as.factor(profit, levels = c("Very Profitable", "Profitable", "Unprofitable")),
+         genre_names = as.factor(genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
 
-horror_new2_1$profit <- factor(horror_new2_1$profit, levels = c("Very Profitable", "Profitable", "Unprofitable"))
-horror_new2_1$genre_names <- factor(horror_new2_1$genre_names, levels = c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery"))
 
 ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
   geom_bar(position = "fill") +
@@ -531,41 +477,15 @@ ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
   scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))
 ```
 
+### Budgets
 
-## Plots
+```{r}
+horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  filter(genre_names != "Horror") |>
+  ggplot(aes(x = genre_names,
+             y = adj_budget2020)) +
+  geom_boxplot() + 
+  coord_flip(ylim = c(0, 1e08)) 
+```
 
-## Plot and text
-
-::: columns ::: {.column width="50%"} - Some text - goes here :::
-
-::: {.column width="50%"}
-
-# A new section...
-
-## Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-## Images
-
-## Math Expressions {.smaller}
-
-You can write LaTeX math expressions inside a pair of dollar signs, e.g. \$\alpha+\beta\$ renders $\alpha+\beta$. You can use the display style with double dollar signs:
-
-    $$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-
-Limitations:
-
-1.  The source code of a LaTeX math expression must be in one line, unless it is inside a pair of double dollar signs, in which case the starting `$$` must appear in the very beginning of a line, followed immediately by a non-space character, and the ending `$$` must be at the end of a line, led by a non-space character;
-
-2.  There should not be spaces after the opening `$` or before the closing `$`.
-
-# Wrap up
-
-## Feeling adventurous?
-
--   You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
-
--   But some of you might want to play around with slide styling. Some solutions for this can be found at https://quarto.org/docs/presentations/revealjs.
