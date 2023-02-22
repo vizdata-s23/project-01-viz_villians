@@ -28,11 +28,12 @@ library(gridExtra)
 library(stringr)
 library(tidytext)
 library(textdata)
-library(cowplot)
 ```
 
 ```{r setup, include = F}
 # For better figure resolution
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
 knitr::opts_chunk$set(
   fig.retina = 3, 
   dpi = 300, 
@@ -137,6 +138,7 @@ horror_new <- horror_new |>
   filter(adj_budget2020 >= 2000000,
          release_year >= 1980)
 ```
+
 
 ## Exploraty Data Visualizations
 
@@ -306,57 +308,51 @@ horror_summary <- horror_new |>
             count = n())
 
 
-
 p1 <- horror_summary |>
   ggplot(aes(x = release_year, y = total_budget)) +
-  geom_line(aes(col = "Total Budget"), alpha=0.1, linewidth=2) +
-  geom_smooth(se = FALSE, aes(col = "Total Budget"), linewidth=4, span=0.4) +
-  geom_line(aes(y = total_profit, col="Total Profit"), alpha=0.1, linewidth=2) +
+  #geom_point(aes(col = "Total Budget"), alpha=0.1) +
+  geom_line(aes(col = "Total Budget"), alpha=0.1, linewidth = 1) +
+  geom_smooth(se = FALSE, aes(col = "Total Budget"), linewidth = 3, span=0.4) +
+  #geom_point(aes(y = total_profit, col = "Total Profit"), alpha=0.1) +
+  geom_line(aes(y = total_profit, col = "Total Profit"), alpha=0.1, linewidth=1) +
   geom_smooth(aes(y = total_profit, col = "Total Profit"),
-              se = FALSE, linewidth=4, span=0.4) +
+              se = FALSE, size=3, span=0.4) +
   scale_color_manual(name='',
                      breaks=c('Total Profit', 'Total Budget'),
-                     values=c('Total Profit'="#d95f02", 'Total Budget'="#7570b3")) +
+                     values=c('Total Profit'='red', 'Total Budget'='blue')) +
   scale_size(range = c(1, 15)) +
-	scale_y_continuous(labels = label_number(prefix = "$", suffix = "B", scale = 1e-9)) +
-  coord_cartesian(xlim = c(1980 ,2022)) +
   theme_minimal() +
   theme(legend.position = c(0.1, 0.9),
-        legend.spacing.y = unit(0.5, 'cm'),
-        legend.text = element_text(size=12),
+        legend.spacing.y = unit(0.2, 'cm'),
+        #legend.key.size = unit(3, 'cm'), #change legend key size
+        #legend.key.height = unit(3, 'cm'), #change legend key height
+        #legend.key.width = unit(3, 'cm'),
         plot.title = element_text(size=18),
         plot.subtitle = element_text(size=14),
         axis.title=element_text(size=14),
-        axis.title.x = element_blank(),
-        axis.text = element_text(size=12),
-        axis.text.x = element_blank()) +
-  labs(y = "Dollars (in billions)",
-       title = "Total profits trended up from the late 1990s to the pre-COVID 2010s, while total budgets stagnated")
-  
+        axis.title.x = element_blank()) +
+  labs(
+    #title = "Starting in 2007, Movie Directors realized they didn't need big #budgets to garner an audience for their movies",
+       y = "Dollars (2020 adjusted)",
+       #subtitle = "While total budget decreased, total profit continued to #increase"
+       )
 
 
 
 p2 <- horror_summary |>
-  mutate(max = ifelse(release_year == 2009, "1", "0")) |>
-  ggplot(aes(x = release_year, y = count, fill =max)) +
+  ggplot(aes(x = release_year, y = count)) +
   geom_col() +
   theme_minimal()  +
-  scale_fill_manual(values=c("darkgrey", "#1b9e77"))+
   labs(y = "Number of movies",
-       x = "Year",
-       caption = "Note: Dollars are 2020 inflation adjusted") + 
-  coord_cartesian(xlim = c(1980 ,2022)) +
-  theme(axis.title=element_text(size=14),
-        axis.text = element_text(size=12),
-        plot.caption= element_text(size=10),
-        legend.position = "none")
+       x = "Year"
+       )
 
-
-
-
-plot_grid(p1, p2, ncol = 1, align = "v", rel_heights = c(2,1))
+grid.arrange(p1, p2, nrow=2, heights=c(4, 2))
+grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA))
 
 ```
+
+
 
 ```{r}
 horror_new |>
@@ -386,6 +382,7 @@ popular_genre_names <- horror_new2 |>
   arrange(desc(prop)) |>
   head(6)
 ```
+
 
 ```{r}
 horror_new2 |>
@@ -434,13 +431,14 @@ ggplot(horror_new2, aes(x = prop_profit)) +
 
 ```{r}
 horror_new |>
-  filter(prop_profit >= 1,
-         release_year >= 2000) |>
   ggplot(aes(x = adj_budget1950,
              y = prop_profit)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  coord_cartesian(xlim = c(0, 1000000))
 ```
+
+## Sentiment Analysis
 
 ```{r sentiment_data, message = FALSE, warning = FALSE}
 sentiment_horror <- horror_new2 |>
@@ -467,24 +465,58 @@ newsentiment <- horror_new2 |>
 ```
 
 ```{r sentiment-plots, warning = F, message = F}
-sentiment_joined |>
+notstacked <- sentiment_joined |>
   group_by(genre_names, sentiment) |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
   summarise(count = n()) |>
-  #pivot_wider(names_from = sentiment, values_from = count, values_fill = 0) |>
-  #mutate(diff = positive - negative) |>
   ggplot(aes(x = fct_reorder(genre_names, count), y = count, fill = sentiment)) +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("navy", "steelblue1"),
+                    labels = c("Negative", "Positive")) +
+  theme(legend.position = "top",
+        legend.text = element_text("Sentiment")) +
+  labs(x = "Genres", y = "Count of Negative/Positive Scores \n by BING Lexicon",
+       title = "The Sentiment of Words in Horror Movie Taglines",
+       subtitle = "Counted for each word, by genre",
+       fill = "Sentiment")
 ```
 
-```{r}
+```{r stacked, warning = FALSE, message = F}
+stacked <- sentiment_joined |>
+  group_by(genre_names, sentiment) |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = fct_reorder(genre_names, count), y = count, fill = sentiment)) +
+  geom_bar(stat = "identity", position = "fill", show.legend = FALSE) +
+  scale_fill_manual(values = c("navy", "steelblue1")) + 
+  labs(x = "Genres",
+       y = "Proportion of \n Positive/Negatives",
+       caption = "The BING Lexicon produces \n negative or positive for a word")
+
+notstacked / stacked
+```
+
+
+```{r boxplot-sentiments}
 newsentiment |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
   ggplot(aes(x = fct_reorder(genre_names, averagesent), y = averagesent,
              fill = genre_names)) +
-  geom_boxplot(show.legend = FALSE) +
-  coord_flip()
+  geom_boxplot(show.legend = FALSE, color = "darkblue") +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("lightslateblue","steelblue3","steelblue1","dodgerblue","cornflowerblue","lightskyblue")) +
+  labs(y = "Average Sentiment Score for Words in a Movie Tagline",
+       x = "Genre or Subgenre",
+       title = "AFINN Sentiment Score of Movie Taglines",
+       subtitle = "By Genre of Movie",
+       caption = "AFINN Score: Measure of positive/negative \n sentiment, from -5 to 5") +
+  theme(
+    plot.title = element_text(size = 20),
+    plot.subtitle = element_text(size = 18),
+    axis.title = element_text(size = 18))
 ```
+
 
 ## Plots
 
