@@ -49,30 +49,6 @@ knitr::opts_chunk$set(
 horror_movies <- read.csv("data/horror_movies.csv")
 ```
 
-#### Analysis plan question 1:
-
-We know the first question is vague and it is purposely so, but we hope to make it more clear what we're trying to answer via our analysis and data visualizations. When we say "environment", we mean the context of time of release, as the year of release is linked to different economic environments, different budgets for entertainment, different social norms and audience reception to horror, etc.
-
-Our first plan of action is to create a visualization that will look at how the popularity of horror movies have changed overtime. We will use the `popularity` and `release_date` variables for this visualization. For this visualization, we can use geom_point() to create a scatterplot with the x-axis being the release_date, and the y-axis being the popularity of the horror movie. Then, we can add geom_smooth() to show a trend line. We can also create a line graph to show popularity of horror movies over time using geom_line().
-
-Another visualization will look at the same thing, but group by whether the movie is low budget or high budget (have high budget horror movies increased in popularity over time?). We will have to mutate a new categorical variable and add it to the dataset that determines whether the movie is high or low budget. We will choose a certain cutoff for high or low budget based on some sort of summary statistic of the budgets for movies for that year. Along with that newly mutated variable we will use the popularity and release_date variable. With this plot, we can create two line graphs using geom_line() and set color to the newly mutated categorical variable to indicate whether the movie was high or low budget. We can also once again use geom_point() and geom_smooth() with `release_date` as the x-axis and `popularity` as y-axis, and then either facet by the high/low budget variable, or use color to indicate the high/low budget variable.
-
-Third, we will want to look at how the popularity of horror movies increases or decreases after a high profile horror movie is released (either a highly popular, or high budget film). We will use the variables `popularity`, `release_date`, and `budget` for this analysis. We will mutate a new variable that captures the upper extreme of movies that are either an extremely high budget or an extremely high popularity post release -- this will be a categorical variable of 2 levels, with "high profile" or "normal movie" as levels. We will have to determine some sort of cutoff based on summary statistics or a fitting threshold for what is "high profile". Afterwards, we are using the original geom_line() plot, but we add dashed vertical lines (vline) that are at the x-intercepts for the release date of each movie that was extremely high profile to see if the popularity dips after that high profile movie was released.
-
-Our last rough idea of a visualization we might want to create is one that looks at how the popularity of foreign language horror films has increased or decreased over time. We'll use the `release_date` as the x-axis, the `popularity` as the y-axis, and involve the original_language variable as a differentiator between levels. Here, we can create multiple line graphs using geom_line() with color set to the language of the film to show a difference in popularity of foreign language films over time.
-
-The above plans for visualizations can be tweaked--there are many ways to represent time series data, where the most obvious ones are with scatterplots over time or line graphs over time. However, as we work through our visualizations, we will be able to tweak or add other visualizations to represent the popularity and time trends. Overall, we believe that the rough visualizations above will properly display answers to the the first question.
-
-#### Analysis plan question 2
-
-For the second question, we aim to look at the variable `genre_names`, which includes the genres that the movie falls into. Horror, for obvious reasons, is included in the value for the observations of this variable. On top of that, many observations have extra tagged genres, such as drama, thriller, etc. That variable is currently of type character (a string in R), so we can use a delimiter to separate it into different variables for each sub genre. We intend to make indicator variables: beyond horror, it will be Thriller: 0 or 1, 0 for thriller is not included in the extra genre taglines, 1 for if it is. We'll take the top several genres to make indicator variables and discard the rest that have very few tagged -- let's say "Adventure" is too rare a subgenre taged in genre_names, we'll just make indicator variables for the top X occurring subgenres. How we'll find the top X occurring subgenres will be through using the stringr package to identify if the string value for `genre_names` contains a certain sub-genre, then counting how many occurrences there are for each subgenre, and identifying the top X results.
-
-Afterwards, we can treat these indicator variables as binary categorical variables and create visualizations to compare the indicator variables against reception metrics such as popularity. Using these binary indicator variables can also help us create linear models with binary predictors -- does having a certain subgenre correlate with better reception? This analysis will help us look at differences between subgenres and determine which may be the worst and best in combination with horror.
-
-For visualizations, we can compare the categories of these sub-genres in a few different ways. We will make histograms with geom_histogram(), and faceting by the sub-genre (a bunch of faceting by if sub-genre binary = 1 or 0, then using the patchwork package to compare the different histograms). The baseline histogram will be the distribution of either `popularity` or `revenue` when the movie only has horror as the genre listed, and all other sub-genres have the binary indicator set to 0. Then, based on what our linear model spit out (i.e. ranking the p-values of the sub-genres from most to least significant), we will slowly add on more histograms and compare them to the baseline, then to the baseline plus the sub-genre with the lowest p-value in the model, etc. For example, if we find thriller is the most significant predictor for higher popularity, we'll make a histogram of the distribution of popularity with movies just tagged as horror, then a histogram of the distribution of popularity with movies tagged as horror and thriller, then horror and thriller and drama, etc.
-
-If these histograms prove to not be useful in visualizing the differences in sub-genre reception, we can create boxplots of popularity by sub-genre using geom_boxplot(), creating boxplots for if the subgenre = 1 or 0 (if the movie has that sub-genre tagged or not). Then, we will change the colors of these boxplots to represent the different subgenres, and compare the distribution of these boxplots. There are other things we could try -- density plots using geom_density(), or ridge plots using geom_density_ridges(), from the ggridges package to compare distributions by sub-genre. This question in particular will be hard to determine which visualization will be best to answer the given question until we work through the analysis ourselves in the latter stage of the project.
-
 # Using Quarto for presentations
 
 ## Quarto
@@ -142,7 +118,7 @@ horror_new <- horror_new |>
 ```
 
 
-## Exploraty Data Visualizations
+## Exploratory Data Visualizations
 
 ```{r rudimentary-histogram}
 ggplot(horror_new, aes(x = adj_budget2020)) +
