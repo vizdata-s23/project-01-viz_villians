@@ -369,6 +369,49 @@ horror_new |>
   
 ```
 
+
+```{r}
+horror_new2 <- horror_new |>
+  separate_rows(genre_names, sep = ",\\s+")
+
+#popular genres
+popular_genre_names <- horror_new2 |>
+  group_by(genre_names) |>
+  summarise(n = n()) |>
+  mutate(prop = n / sum(n)) |>
+  arrange(desc(prop)) |>
+  head(6)
+
+
+horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  ggplot(aes(x = prop_profit)) +
+  geom_density() +
+  facet_wrap(. ~ genre_names, ncol = 1) +
+  coord_cartesian(xlim = c(0, 100))
+
+horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
+  mutate(profitability = ifelse(adj_profit2020 > 0, "Profitable", "Unprofitable")) |>
+  ggplot(aes(y = genre_names, fill = profitability)) +
+  geom_bar(position = "fill") +
+  facet_wrap(. ~ en_language, ncol = 1) +
+  theme_minimal()
+```
+
+
+```{r}
+horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  filter(genre_names != "Horror") |>
+  ggplot(aes(x = genre_names,
+             y = adj_profit2020)) +
+  geom_boxplot() + 
+  coord_flip(ylim = c(-1e8, 1e8)) 
+```
+
+
 ## Plots
 
 ## Plot and text
