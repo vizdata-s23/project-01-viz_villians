@@ -8,7 +8,7 @@ editor: visual
 
 ## Abstract
 
-This project takes data extracted from [The Movie Database](https://www.themoviedb.org) via tmdb API using R `httr`. The purpose of this project is to analyze a) how trends in factors surrounding horror as a genre (e.g. popularity, budgets, etc) have changed over time and b) how different subgenres are associated with popularity of horror films as a whole. This project aims to create compelling visualizations to analyze the two research questions above and deliver findings that can be useful in determining next steps for analysis.
+This project takes data extracted from [The Movie Database](https://www.themoviedb.org) via tmdb API using R `httr`. The purpose of this project is to analyze a) how trends in factors surrounding horror as a genre (e.g. number of releases, budgets, etc) have changed over time and b) how different subgenres are associated with certain features of horror films as a whole. This project aims to create compelling visualizations to analyze the two research questions above and deliver findings that can be useful in determining next steps for analysis.
 
 ------------------------------------------------------------------------
 
@@ -17,6 +17,73 @@ This project takes data extracted from [The Movie Database](https://www.themovie
 This dataset contains all recorded releases of films dating back to the 1950s that have horror listed as one of the genres. These films range from small productions to blockbuster productions. Each film has a few significant variables include but are not limited to name and title, language, tagline/description, release date, popularity, votes and average rating of those votes, total budget and revenue, runtime, and genre tags. Factors such as popularity, votes, and average rating were extracted from the movie database (TMDB), an online movie rating platform.
 
 ## Question 1: Title that relates to the question you're answering
+
+```{r loading, include = F, message = F, warning = F}
+library(tidyverse)
+library(broom)
+library(patchwork)
+library(dplyr)
+library(knitr)
+library(lubridate)
+library(ggforce)
+library(grid)
+library(gridExtra)
+library(stringr)
+library(tidytext)
+library(textdata)
+library(cowplot)
+library(scales)
+```
+
+```{r setup, include = F}
+# For better figure resolution
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# set width of code output
+options(width = 65)
+
+#set chunk display
+knitr::opts_chunk$set(
+  fig.retina = 3, 
+  dpi = 300, 
+  fig.width = 6, 
+  fig.asp = 0.618, 
+  out.width = "70%"
+  )
+
+
+horror_movies <- read.csv("data/horror_movies.csv")
+
+
+horror_movies <- horror_movies |>
+  mutate(profit = revenue - budget,
+         release_date2 = release_date) |>
+  separate(release_date2, 
+           into = c("release_year", "throwaway"), sep = "-") |>
+  mutate(release_date = as.Date(release_date),
+         release_year = as.numeric(release_year)) |>
+  select(!throwaway)
+
+# Data on inflation data: https://www.in2013dollars.com/us/inflation/2022?endYear=1950&amount=1
+
+inflationdata <- read.csv("data/Dollar_inflation.csv")
+
+inflationdata <- inflationdata |>
+  filter(year != 2023) |>
+  rename("release_year" = "year",
+         "dollar_adjusted_by1950" = "amount")
+
+horror_new <- left_join(horror_movies, inflationdata, by = "release_year")
+
+horror_new <- horror_new |>
+  mutate(adj_profit2020 = profit/dollar_adjusted_by1950*12.14,
+         adj_profit1950 = profit/dollar_adjusted_by1950,
+         adj_budget1950 = budget/dollar_adjusted_by1950,
+         adj_budget2020 = budget/dollar_adjusted_by1950*12.14,
+         prop_profit = adj_profit2020/adj_budget2020) |>
+  filter(adj_budget2020 >= 2000000,
+         release_year >= 1980)
+```
 
 ### Introduction
 
@@ -219,15 +286,152 @@ We then wanted to delve into the socioeconomic/political state of the US and how
 
 ### Introduction
 
-(1-2 paragraphs): Introduction to the question and what parts of the dataset are necessary to answer the question. Also discuss why you're interested in this question.
+We looked at several numerical variables to possibly plot multivariate plots, and found that that would be very difficult -- the variables based on voting and popularity are useless to us because they either don't mean anything, or the popularity variable is a faulty variable because it's based on searches from the day the data were pulled. We looked at adjusted budget (by inflation), adjusted profit, and runtime for other numerical variables, and saw that there was no meaningful correlation between these pairs of variables, and plotted on a scatterplot, you would just see a random scatter of points.
+
+As a result, we decided to look at more qualitative attributes of the data -- the subgenres of the horror movies and the sentiments of their taglines. We wanted to understand if these qualitative markers of a horror movie (how scary/negative does the tagline seem? Does it fall into a bucket of super profitable, not profitable, or breakeven) were impacted by the subgenre the film came from. As a result, our visualizations all separated the subgenres by the top most popular subgenres (the op 6, as there was a large fall off in count of movies afterwards). We are seeing if these movies different in specific traits by the subgenres.
 
 ### Approach
 
-(1-2 paragraphs): Describe what types of plots you are going to make to address your question. For each plot, provide a clear explanation as to why this plot (e.g. boxplot, barplot, histogram, etc.) is best for providing the information you are asking about. The two plots should be of different types, and at least one of the two plots needs to use either color mapping or facets.
+We're going to be looking primarily at bar plots and boxplots, because those types of plots can better capture categorical variables' visualizations. For bar plots, we will be using fill to represent genre, and then faceting by another variabel (i.e. language) if we want to create a multivariate plot. Bar plots help us show the frequency of a certain event happening -- that is the count of movies that are profitable/unprofitable, that fall under a certain type of sentiment, etc. So, we take that count/frequency often as our y-axis variable and use different facets or colors to represent the different characteristics of these movies. We'll used stacked bar plots, filled bar plots, etc. to represent different proportions of characteristics (profitability bucket of a movie or sentiment partitioning), based on subgenre.
+
+For boxplots, we can better see the distribution of a numerical variable benchmarked by the subgenre. In this case, the numerical variable is the average sentiment of the tagline of a movie. Each word in the movie's tagline gets assigned a sentiment score, and taking the average of those words' sentiments gets us the tagline's whole sentiment. This sentiment score is by movie -- and by using fill/color to distinguish the different genres, we can see the distribution of how positive or negative certain taglines for these horror movies are.
 
 ### Analysis
 
-(2-3 code blocks, 2 figures, text/code comments as needed): In this section, provide the code that generates your plots. Use scale functions to provide nice axis labels and guides. You are welcome to use theme functions to customize the appearance of your plot, but you are not required to do so. All plots must be made with **ggplot2**. Do not use base R or lattice plotting functions.
+```{r by-profitability}
+#pivoting longer with separate_rows
+horror_new2 <- horror_new |>
+  separate_rows(genre_names, sep = ",\\s+")
+
+#popular genres
+popular_genre_names <- horror_new2 |>
+  group_by(genre_names) |>
+  summarise(n = n()) |>
+  mutate(prop = n / sum(n)) |>
+  arrange(desc(prop)) |>
+  head(6)
+
+
+## Q2: Subgenres and Profitability
+
+horror_new2_1 <- horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  mutate(en_language = ifelse(original_language == "en", "English", "Non-English")) |>
+  mutate(profit = case_when(adj_profit2020 < 0 ~ "Unprofitable",
+                            adj_profit2020 >= 0 & adj_profit2020 < adj_budget2020 ~ "Profitable",
+                            adj_profit2020 >= adj_budget2020 ~ "Very Profitable")) |>
+  mutate(profit = fct_relevel(profit, c("Very Profitable", "Profitable", "Unprofitable")),
+         genre_names = fct_relevel(genre_names, c("Horror", "Action", "Science Fiction", "Drama", "Thriller", "Mystery")))
+
+
+#plot 1 
+ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
+  geom_bar(position = "fill") +
+  scale_y_discrete(limits = rev) +
+  labs(title = "Differences in Profitabilty Between Subgenres",
+       subtitle = "for Horror Movies",
+       x = "Proportion",
+       y = "Subgenre",
+       fill = "Profit Level") +
+  scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))  +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+
+ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
+  geom_bar(position = "fill") +
+  facet_wrap(. ~ en_language, ncol = 1) +
+  scale_y_discrete(limits = rev)+
+  labs(title = "Differences in Profitabilty Between Subgenres",
+       subtitle = "for Horror Movies, by Language",
+       x = "Proportion",
+       y = "Subgenre",
+       fill = "Profit Level") +
+  scale_fill_manual(values = c("navy", "steelblue1", "lightblue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+```
+
+```{r sentiments}
+sentiment_horror <- horror_new2 |>
+  select(title, genre_names, tagline) |>
+  separate(tagline, into = paste0("word", 1:20), sep = " ") |>
+  pivot_longer(cols = starts_with("word"), 
+               names_to = "word_number", 
+               values_to = "word") |>
+  drop_na(word)
+
+#create two dataframes based on different sentiment lexicons
+sentiment_joined <- sentiment_horror |>
+  inner_join(get_sentiments("bing"))
+
+sentiment_afinn <- sentiment_horror |>
+  inner_join(get_sentiments("afinn"))
+
+afinn_summary <- sentiment_afinn |>
+  group_by(title) |>
+  summarise(averagesent = mean(value))
+
+newsentiment <- horror_new2 |>
+  inner_join(afinn_summary, by = c("title"))
+
+#PLOTS
+notstacked <- sentiment_joined |>
+  group_by(genre_names, sentiment) |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = fct_reorder(genre_names, count), y = count, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("navy", "steelblue1"),
+                    labels = c("Negative", "Positive")) +
+  theme(legend.position = "top") +
+  labs(x = "Genres", y = "Count of Negative/Positive Scores \n by BING Lexicon",
+       title = "The Sentiment of Words in Horror Movie Taglines",
+       subtitle = "Counted for each word, by genre",
+       fill = "Sentiment",
+       caption = "The BING Lexicon produces \n negative or positive for a word")
+
+notstacked
+
+## Q2 Sentiment by Proportion with BING Lexicon
+stacked <- sentiment_joined |>
+  group_by(genre_names, sentiment) |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = fct_reorder(genre_names, count), y = count, fill = sentiment)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_fill_manual(values = c("navy", "steelblue1"),
+                    labels = c("Negative", "Positive")) + 
+  theme(legend.position = "top") +
+  labs(x = "Genres",
+       y = "Proportion of \n Positive/Negatives",
+       title = "The Sentiment of Words in Horror Movie Taglines",
+       subtitle = "Neg/Pos proportion of sentiments by genre",
+       fill = "Sentiment",
+       caption = "The BING Lexicon produces \n negative or positive for a word")
+
+stacked
+
+
+## Q2: Sentiment by Subgenre by AFINN Lexicon 
+
+newsentiment |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  ggplot(aes(x = fct_reorder(genre_names, averagesent), y = averagesent,
+             fill = genre_names)) +
+  geom_boxplot(show.legend = FALSE, color = "darkblue") +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("lightslateblue","steelblue3","steelblue1","dodgerblue","cornflowerblue","lightskyblue")) +
+  labs(y = "Average Sentiment Score for Words in a Movie Tagline",
+       x = "Genre or Subgenre",
+       title = "AFINN Sentiment Score of Movie Taglines",
+       subtitle = "By Genre of Movie",
+       caption = "AFINN Score: Measure of positive/negative \n sentiment, from -5 to 5") +
+  theme(
+    plot.title = element_text(size = 20),
+    plot.subtitle = element_text(size = 18),
+    axis.title = element_text(size = 18))
+```
 
 ### Discussion
 
