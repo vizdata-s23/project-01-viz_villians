@@ -25,7 +25,9 @@ library(lubridate)
 library(ggforce)
 library(grid)
 library(gridExtra)
-
+library(stringr)
+library(tidytext)
+library(textdata)
 ```
 
 ```{r setup, include = F}
@@ -98,7 +100,7 @@ or text in two columns $^*$
 \[\*\] And add footnotes
 :::
 
-## Code
+## Mutating and Joining Datasets
 
 ```{r mutate-dataset, warning = F}
 horror_movies <- horror_movies |>
@@ -135,20 +137,22 @@ horror_new <- horror_new |>
          release_year >= 1980)
 ```
 
-```{r}
-bang <- horror_new |>
-  filter(release_year < 2000)
-```
 
-```{r}
+## Exploraty Data Visualizations
+
+```{r rudimentary-histogram}
 ggplot(horror_new, aes(x = adj_budget2020)) +
-  geom_histogram(boundary = 0)
+  geom_histogram(boundary = 0, bins = 100)
 
 ggplot(horror_new, aes(x = adj_profit2020)) +
-  geom_histogram()
+  geom_histogram(bins = 100)
 ```
 
-```{r working-on-it}
+```{r rudimentary-2, message = FALSE}
+ggplot(horror_new, aes(x = release_year, y = prop_profit)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+
 horror_new |>
   #filter(adj_profit > 0) |>  
   ggplot(aes(x = release_year, y = adj_profit2020)) +
@@ -157,8 +161,7 @@ horror_new |>
   #coord_cartesian(ylim = c(0, 50000))
 ```
 
-```{r}
-
+```{r annotated-scatterplot}
 description1 <-
   "Horror Movies saw their popularity peak in 2010. Insidious and Paranormal Activity, both released in 2010 saw the highest dollars of profit per dollars of budget of all Horror Movies between 1980 and 2022." |> 
   str_wrap(width=40)
@@ -246,8 +249,7 @@ scale_color_discrete(labels=c('English', 'Other'))
 
 ```
 
-```{r}
-
+```{r annotated-by-year, message = FALSE, warning = FALSE}
 description1 <-
   "9/11- Terrorist crash a plane into the World Trade Center. Questions about American security arise" |> 
   str_wrap(width=40)
@@ -288,15 +290,15 @@ horror_new |>
        color = "Language") +
 theme(
   legend.key.size = unit(3, 'cm'), #change legend key size
-  legend.key.height = unit(3, 'cm'), #change legend key height
+  legend.key.height = unit(1, 'cm'), #change legend key height
   legend.key.width = unit(3, 'cm'),
+  legend.position = "top",
   plot.title = element_text(size=18),
   axis.title=element_text(size=14)) +
 scale_color_discrete(labels=c('English', 'Other'))
 ```
 
-```{r}
-
+```{r total-budgets-profits, message = F}
 horror_summary <- horror_new |>
   group_by(release_year) |>
   summarise(total_budget = sum(adj_budget2020),
@@ -304,14 +306,13 @@ horror_summary <- horror_new |>
             count = n())
 
 
-
 p1 <- horror_summary |>
   ggplot(aes(x = release_year, y = total_budget)) +
   #geom_point(aes(col = "Total Budget"), alpha=0.1) +
-  geom_line(aes(col = "Total Budget"), alpha=0.1, size=1) +
-  geom_smooth(se = FALSE, aes(col = "Total Budget"), size=3, span=0.4) +
+  geom_line(aes(col = "Total Budget"), alpha=0.1, linewidth = 1) +
+  geom_smooth(se = FALSE, aes(col = "Total Budget"), linewidth = 3, span=0.4) +
   #geom_point(aes(y = total_profit, col = "Total Profit"), alpha=0.1) +
-  geom_line(aes(y = total_profit, col = "Total Profit"), alpha=0.1, size=1) +
+  geom_line(aes(y = total_profit, col = "Total Profit"), alpha=0.1, linewidth=1) +
   geom_smooth(aes(y = total_profit, col = "Total Profit"),
               se = FALSE, size=3, span=0.4) +
   scale_color_manual(name='',
@@ -349,11 +350,7 @@ grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA)
 
 ```
 
-```{r}
-ggplot(horror_new, aes(x = release_year, y = prop_profit)) +
-  geom_point() +
-  geom_smooth(se = FALSE)
-```
+
 
 ```{r}
 horror_new |>
@@ -369,8 +366,9 @@ horror_new |>
   
 ```
 
+# Part 2
 
-```{r}
+```{r mutating-horror-2}
 horror_new2 <- horror_new |>
   separate_rows(genre_names, sep = ",\\s+")
 
@@ -439,6 +437,49 @@ horror_new |>
   geom_smooth()
 ```
 
+```{r sentiment_data, message = FALSE, warning = FALSE}
+sentiment_horror <- horror_new2 |>
+  select(title, genre_names, tagline) |>
+  separate(tagline, into = paste0("word", 1:20), sep = " ") |>
+  pivot_longer(cols = starts_with("word"), 
+               names_to = "word_number", 
+               values_to = "word") |>
+  drop_na(word)
+
+#create two dataframes based on different sentiment lexicons
+sentiment_joined <- sentiment_horror |>
+  inner_join(get_sentiments("bing"))
+
+sentiment_afinn <- sentiment_horror |>
+  inner_join(get_sentiments("afinn"))
+
+afinn_summary <- sentiment_afinn |>
+  group_by(title) |>
+  summarise(averagesent = mean(value))
+
+newsentiment <- horror_new2 |>
+  inner_join(afinn_summary, by = c("title"))
+```
+
+```{r sentiment-plots, warning = F, message = F}
+sentiment_joined |>
+  group_by(genre_names, sentiment) |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  summarise(count = n()) |>
+  #pivot_wider(names_from = sentiment, values_from = count, values_fill = 0) |>
+  #mutate(diff = positive - negative) |>
+  ggplot(aes(x = fct_reorder(genre_names, count), y = count, fill = sentiment)) +
+  geom_bar(stat = "identity")
+```
+
+```{r}
+newsentiment |>
+  filter(genre_names %in% popular_genre_names$genre_names) |>
+  ggplot(aes(x = fct_reorder(genre_names, averagesent), y = averagesent,
+             fill = genre_names)) +
+  geom_boxplot(show.legend = FALSE) +
+  coord_flip()
+```
 
 
 ## Plots
