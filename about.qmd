@@ -4,9 +4,9 @@ format: html
 editor: visual
 ---
 
-This project was developed by **\[team name\]** For [STA/ISS 313: Advanced Data Visualization](https://vizdata.org/) at Duke University. The team is comprised of the following team members.
+This project was developed by **Viz-Villains** For [STA/ISS 313: Advanced Data Visualization](https://vizdata.org/) at Duke University. The team is comprised of the following team members.
 
--   Team member 1: One sentence description of Team member 1 (e.g., year, major, etc.).
--   Team member 2: One sentence description of Team member 2 (e.g., year, major, etc.).
--   Team member 3: One sentence description of Team member 3 (e.g., year, major, etc.).
--   Team member 4: One sentence description of Team member 4 (e.g., year, major, etc.).
+-   Christina Liang: Junior at Duke University studying Statistical Science and French.
+-   Kevin Ordet: Senior at Duke University studying Statistical Science with a minor in Computer Science
+-   Chris Tsai: Junior at Duke University studying Statistical Science with a minor in Chemistry.
+-   Jason Zhang: Senior at Duke University studying Statistical Science (Data Science concentration) with minors in Finance and Chinese
