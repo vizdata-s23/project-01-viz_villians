@@ -304,7 +304,9 @@ horror_summary <- horror_new |>
   group_by(release_year) |>
   summarise(total_budget = sum(adj_budget2020),
             total_profit = sum(adj_profit2020),
-            count = n())
+            count = n()) |>
+  mutate(total_budget = total_budget / 1000000000,
+         total_profit = total_profit / 1000000000)
 
 
 p1 <- horror_summary |>
@@ -328,11 +330,11 @@ p1 <- horror_summary |>
         #legend.key.width = unit(3, 'cm'),
         plot.title = element_text(size=18),
         plot.subtitle = element_text(size=14),
-        axis.title=element_text(size=14),
+        axis.title=element_text(size=10),
         axis.title.x = element_blank()) +
   labs(
     #title = "Starting in 2007, Movie Directors realized they didn't need big #budgets to garner an audience for their movies",
-       y = "Dollars (2020 adjusted)",
+       y = "Dollars (2020 adjusted, billions)",
        #subtitle = "While total budget decreased, total profit continued to #increase"
        )
 
