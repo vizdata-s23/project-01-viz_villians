@@ -423,6 +423,23 @@ horror_new2 |>
   facet_wrap(~ genre_names)
 ```
 
+```{r}
+ggplot(horror_new2, aes(x = prop_profit)) +
+  geom_histogram(bins = 100) + 
+  coord_cartesian(xlim = c(-5,5))
+```
+
+```{r}
+horror_new |>
+  filter(prop_profit >= 1,
+         release_year >= 2000) |>
+  ggplot(aes(x = adj_budget1950,
+             y = prop_profit)) +
+  geom_point() +
+  geom_smooth()
+```
+
+
 
 ## Plots
 
