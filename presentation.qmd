@@ -381,23 +381,6 @@ popular_genre_names <- horror_new2 |>
   mutate(prop = n / sum(n)) |>
   arrange(desc(prop)) |>
   head(6)
-
-
-horror_new2 |>
-  filter(genre_names %in% popular_genre_names$genre_names) |>
-  ggplot(aes(x = prop_profit)) +
-  geom_density() +
-  facet_wrap(. ~ genre_names, ncol = 1) +
-  coord_cartesian(xlim = c(0, 100))
-
-horror_new2 |>
-  filter(genre_names %in% popular_genre_names$genre_names) |>
-  mutate(en_language = ifelse(original_language == "en", "en", "non-en")) |>
-  mutate(profitability = ifelse(adj_profit2020 > 0, "Profitable", "Unprofitable")) |>
-  ggplot(aes(y = genre_names, fill = profitability)) +
-  geom_bar(position = "fill") +
-  facet_wrap(. ~ en_language, ncol = 1) +
-  theme_minimal()
 ```
 
 
@@ -409,6 +392,35 @@ horror_new2 |>
              y = adj_profit2020)) +
   geom_boxplot() + 
   coord_flip(ylim = c(-1e8, 1e8)) 
+```
+
+```{r}
+horror_new2 |>
+  group_by(release_year) |>
+  summarise(meanruntime = mean(runtime)) |>
+  ggplot(aes(x = release_year,
+             y = meanruntime)) + 
+  geom_point() + 
+  geom_smooth() +
+  coord_cartesian(ylim = c(80, 115))
+```
+
+```{r}
+horror_new2 |>
+  ggplot(aes(x = runtime,
+             y = prop_profit)) + 
+  geom_point() + 
+  geom_smooth() +
+  scale_x_continuous(limits = c(50, 200))
+```
+
+```{r}
+horror_new2 |>
+  filter(genre_names %in% popular_genre_names$genre_names,
+         genre_names != "Horror") |>
+  ggplot(aes(x = runtime)) +
+  geom_histogram() +
+  facet_wrap(~ genre_names)
 ```
 
 
