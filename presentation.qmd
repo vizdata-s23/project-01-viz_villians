@@ -28,11 +28,8 @@ library(gridExtra)
 library(stringr)
 library(tidytext)
 library(textdata)
-<<<<<<< HEAD
-=======
 library(cowplot)
 library(scales)
->>>>>>> b4d58d571806a2368984324b81bfdb049950e669
 ```
 
 ```{r setup, include = F}
@@ -522,8 +519,7 @@ newsentiment |>
     axis.title = element_text(size = 18))
 ```
 
-<<<<<<< HEAD
-=======
+
 ```{r}
 horror_new2_1 <- horror_new2 |>
   filter(genre_names %in% popular_genre_names$genre_names) |>
@@ -554,7 +550,7 @@ ggplot(horror_new2_1, aes(y = genre_names, fill = profit)) +
        y = "Subgenre") +
   scale_fill_manual(values = c("navy", "steelblue1", "lightblue"))
 ```
->>>>>>> b4d58d571806a2368984324b81bfdb049950e669
+
 
 ## Plots
 
